@@ -1,0 +1,38 @@
+<?php
+
+namespace MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Integration;
+
+use Mautic\IntegrationsBundle\Integration\BasicIntegration;
+use Mautic\IntegrationsBundle\Integration\ConfigurationTrait;
+use Mautic\IntegrationsBundle\Integration\Interfaces\BasicInterface;
+
+class LeuchtfeuerConditionalFormActionsIntegration extends BasicIntegration implements BasicInterface
+{
+    use ConfigurationTrait;
+
+    public const INTEGRATION_NAME = 'LeuchtfeuerConditionalFormActions';
+    public const DISPLAY_NAME     = 'ConditionalFormActions by Leuchtfeuer';
+
+    public function getName(): string
+    {
+        return self::INTEGRATION_NAME;
+    }
+
+    public function getDisplayName(): string
+    {
+        return self::DISPLAY_NAME;
+    }
+
+    public function getIcon(): string
+    {
+        return 'plugins/LeuchtfeuerConditionalFormActionsBundle/Assets/img/icon.png';
+    }
+
+    /**
+     * Override the trait method to fix PHPStan error.
+     */
+    public function hasIntegrationConfiguration(): bool
+    {
+        return null !== $this->integration;
+    }
+}
