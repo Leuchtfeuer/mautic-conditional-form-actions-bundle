@@ -1,6 +1,6 @@
 {
   "name": "leuchtfeuer/mautic-conditional-form-actions-bundle",
-  "description": "Import Segments directly from external sources (API, CSV, ...), or fetch properties based on query filters instead of all contacts",
+  "description": "Enables conditional form submit actions",
   "type": "mautic-plugin",
   "authors": [
     {
