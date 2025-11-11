@@ -11,7 +11,7 @@
     }
   ],
   "license": "GPL-3.0-or-later",
-  "keywords": ["mautic","plugin","integration","API","CSV","Import","Segments","Custom Objects"],
+  "keywords": ["mautic","plugin","form"],
   "require": {
     "php": ">=8.1.0",
     "mautic/core-lib": "^5.2"
