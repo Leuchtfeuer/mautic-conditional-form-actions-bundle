@@ -1,0 +1,39 @@
+{
+  "name": "leuchtfeuer/mautic-conditional-form-actions-bundle",
+  "description": "Enables conditional form submit actions",
+  "type": "mautic-plugin",
+  "authors": [
+    {
+      "name": "Leuchtfeuer Digital Marketing GmbH",
+      "email": "mautic-plugins@Leuchtfeuer.com",
+      "homepage": "https://Leuchtfeuer.com/mautic/",
+      "role": "Developer"
+    }
+  ],
+  "license": "GPL-3.0-or-later",
+  "keywords": ["mautic","plugin","form"],
+  "require": {
+    "php": ">=8.1.0",
+    "mautic/core-lib": "^5.2"
+  },
+  "extra": {
+    "install-directory-name": "LeuchtfeuerConditionalFormActionsBundle"
+  },
+  "minimum-stability": "dev",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/mautic/FOSOAuthServerBundle.git"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/mautic/SpBundle.git",
+      "canonical": false
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/mautic/SymfonyBridgeBundle.git",
+      "canonical": false
+    }
+  ]
+}
