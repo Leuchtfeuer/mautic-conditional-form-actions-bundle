@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\ServiceRepositoryCompilerPass;
 use Mautic\CoreBundle\DependencyInjection\MauticCoreExtension;
 use Mautic\FormBundle\Model\SubmissionModel;
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Model\SubmissionModelDecorated;
@@ -15,6 +16,9 @@ return function (ContainerConfigurator $configurator): void {
         ->public();
 
     $excludes = [];
+
+    $services->load('MauticPlugin\\LeuchtfeuerConditionalFormActionsBundle\\Entity\\', '../Entity/*Repository.php')
+        ->tag(ServiceRepositoryCompilerPass::REPOSITORY_SERVICE_TAG);
 
     $services->load('MauticPlugin\\LeuchtfeuerConditionalFormActionsBundle\\', '../')
         ->exclude('../{'.implode(',', array_merge(MauticCoreExtension::DEFAULT_EXCLUDES, $excludes)).'}');
