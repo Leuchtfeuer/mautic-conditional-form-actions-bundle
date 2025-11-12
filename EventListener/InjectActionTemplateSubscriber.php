@@ -7,7 +7,7 @@ namespace MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\EventListener;
 
 use Mautic\FormBundle\Event\FormBuilderEvent;
 use Mautic\FormBundle\FormEvents;
-use MauticPlugin\LeuchtfeuerDoiBundle\Integration\Config;
+use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Integration\Config;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class InjectActionTemplateSubscriber implements EventSubscriberInterface

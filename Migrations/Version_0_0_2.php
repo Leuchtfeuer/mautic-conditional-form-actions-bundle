@@ -7,7 +7,7 @@ namespace MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Mautic\CoreBundle\Exception\SchemaException;
 use Mautic\IntegrationsBundle\Migration\AbstractMigration;
-use MauticPlugin\LeuchtfeuerDoiBundle\Helper\MigrationHelper;
+use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Helper\MigrationHelper;
 
 class Version_0_0_2 extends AbstractMigration
 {
