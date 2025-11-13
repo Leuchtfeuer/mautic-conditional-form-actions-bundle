@@ -29,7 +29,7 @@ class ConditionBuilderController extends AbstractController
         $search      = InputHelper::clean($request->get('search'));
         $formId      = InputHelper::clean($request->get('formId'));
         $actionId    = InputHelper::clean($request->get('actionId'));
-        $filterNum   = (int) $request->get('filterNum');
+        $conditionNum   = (int) $request->get('conditionNum');
 
         $formEntity = $formModel->getEntity($formId);
         $form       = $formFactory->createNamed(self::TMP_NAME, FilterPropertiesType::class);
@@ -56,8 +56,8 @@ class ConditionBuilderController extends AbstractController
             ]
         );
 
-        $formHtml = str_replace('id="'.self::TMP_NAME, "id=\"mauticform_actionConditionsConfig_actionConditions_{$actionId}_conditions_{$filterNum}_properties", $formHtml);
-        $formHtml = str_replace('name="'.self::TMP_NAME, "name=\"mauticform[actionConditionsConfig][actionConditions][{$actionId}][conditions][{$filterNum}][properties]", $formHtml);
+        $formHtml = str_replace('id="'.self::TMP_NAME, "id=\"mauticform_actionConditionsConfig_actionConditions_{$actionId}_conditions_{$conditionNum}_properties", $formHtml);
+        $formHtml = str_replace('name="'.self::TMP_NAME, "name=\"mauticform[actionConditionsConfig][actionConditions][{$actionId}][conditions][{$conditionNum}][properties]", $formHtml);
 
         return new JsonResponse(
             [

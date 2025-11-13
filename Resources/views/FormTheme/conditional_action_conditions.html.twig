@@ -63,26 +63,48 @@
     {% endif %}
 {% endblock %}
 
+{# Override the conditions collection to wrap all conditions in a container #}
 {% block _mauticform_actionConditionsConfig_actionConditions_entry_conditions_widget %}
-    {% for i, filter in form %}
-        {% set isPrototype = '__name__' == filter.vars.name %}
-        {% for object, objectfields in form.parent.vars.fields %}
-            {% set isField = objectfields[filter.vars.value.field] is defined %}
-            {% if (isPrototype or isField) and not filter.isRendered %}
-                {{ form_widget(filter, {'first': (0 == i)}) }}
-            {% endif %}
+    <div class="cfa-conditions-list" id="{{ id }}" data-conditions-container>
+        {% for i, filter in form %}
+            {% set isPrototype = '__name__' == filter.vars.name %}
+            {% for object, objectfields in form.parent.vars.fields %}
+                {% set isField = objectfields[filter.vars.value.field] is defined %}
+                {% if (isPrototype or isField) and not filter.isRendered %}
+                    {{ form_widget(filter, {'first': (0 == i)}) }}
+                {% endif %}
+            {% endfor %}
         {% endfor %}
+    </div>
+{% endblock %}
+
+{# Override to prevent row wrapper on conditions collection #}
+{% block _mauticform_actionConditionsConfig_actionConditions_entry_conditions_row %}
+    {{ form_widget(form) }}
+{% endblock %}
+
+{# Override actionConditions collection #}
+{% block _mauticform_actionConditionsConfig_actionConditions_widget %}
+    {% for entry in form %}
+        {{ form_widget(entry) }}
     {% endfor %}
 {% endblock %}
+
 
 {% block action_conditions_config_widget %}
     {{ includeScript('plugins/LeuchtfeuerConditionalFormActionsBundle/Assets/js/conditional-form-actions.js') }}
     {{ includeStylesheet('plugins/LeuchtfeuerConditionalFormActionsBundle/Assets/css/conditional-form-actions.css') }}
 
+    {% set conditionPrototype = form_widget(form.actionConditions.vars.prototype.conditions.vars.prototype) %}
+    {% set conditionPrototype = conditionPrototype|replace({
+        '[actionConditions][__name__][conditions][__name__]': '[actionConditions][__actionId__][conditions][__conditionIndex__]',
+        '_actionConditions___name___conditions___name__': '_actionConditions___actionId___conditions___conditionIndex__'
+    }) %}
+
     <div class="hide" data-onload-callback="onFormCfaConditionsBuilder">
         <select class="chosen form-control"
                 data-cfa-available-conditions-list
-                data-cfa-condition-prototype="{{ form_widget(form.actionConditions.vars.prototype)|e }}"
+                data-cfa-condition-prototype="{{ conditionPrototype|e }}"
                 data-cfa-render-condition-properties="{{ path('mautic_cfa_render_condition_action') }}">
             <option value=""></option>
             {% for object, field in conditionChoiceFields %}

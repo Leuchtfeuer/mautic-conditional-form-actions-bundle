@@ -10,7 +10,7 @@ return [
     'routes'      => [
         'main' => [
             'mautic_cfa_render_condition_action' => [
-                'path'       => '/forms-doi/render-condition',
+                'path'       => '/forms-cfa/render-condition',
                 'controller' => 'MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Controller\ConditionBuilderController::renderConditionAction',
             ],
         ],

@@ -70,7 +70,7 @@ class ConditionType extends AbstractType
                     'choices' => $operators,
                     'attr'    => [
                         'class'    => 'form-control not-chosen',
-                        'onchange' => 'Mautic.conditionalActionConvertFilterInput(this)',
+                        'onchange' => 'Mautic.cfaConvertConditionInput(this)',
                     ],
                 ]
             );
