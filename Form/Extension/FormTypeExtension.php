@@ -60,10 +60,6 @@ class FormTypeExtension extends AbstractTypeExtension
             'data' => [
                 'actionConditions' => $actionConditionsData,
             ],
-            'attr'        => [
-                'class' => 'conditional-actions-wrapper',
-                'data-conditional-actions' => 'true',
-            ],
             'mapped'      => false,
             'mautic_form' => $entity,
             'label'       => false,

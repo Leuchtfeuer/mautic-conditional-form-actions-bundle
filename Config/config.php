@@ -8,6 +8,11 @@ return [
     'version'     => '0.0.2',
     'author'      => 'Leuchtfeuer Digital Marketing GmbH',
     'routes'      => [
-        'main' => [],
+        'main' => [
+            'mautic_cfa_render_condition_action' => [
+                'path'       => '/forms-doi/render-condition',
+                'controller' => 'MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Controller\ConditionBuilderController::renderConditionAction',
+            ],
+        ],
     ],
 ];

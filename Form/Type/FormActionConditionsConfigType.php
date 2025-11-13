@@ -3,13 +3,21 @@
 namespace MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Form\Type;
 
 use Mautic\FormBundle\Entity\Form;
+use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Service\AvailableOptionsProvider;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class FormActionConditionsConfigType extends AbstractType
 {
+    public function __construct(
+        private AvailableOptionsProvider $availableOptionsProvider
+    ) {
+    }
+
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         // Store the form entity if provided
@@ -30,6 +38,13 @@ class FormActionConditionsConfigType extends AbstractType
         ]);
     }
 
+    public function buildView(FormView $view, FormInterface $form, array $options): void
+    {
+        $mauticForm           = $form->getConfig()->getAttribute('mautic_form');
+        $view->vars['conditionChoiceFields'] = $this->availableOptionsProvider->getAvailableOptions($mauticForm);
+    }
+
+
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
@@ -38,5 +53,10 @@ class FormActionConditionsConfigType extends AbstractType
         ]);
 
         $resolver->setAllowedTypes('mautic_form', ['null', Form::class]);
+    }
+
+    public function getBlockPrefix(): string
+    {
+        return 'action_conditions_config';
     }
 }

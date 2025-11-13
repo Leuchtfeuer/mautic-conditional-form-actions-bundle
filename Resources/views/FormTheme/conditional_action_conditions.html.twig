@@ -12,13 +12,13 @@
     {% set iconClass = iconClassesMap[object] is defined ? iconClassesMap[object] : iconClassesMap['lead'] %}
 
     {% if isPrototype or fields[object][filterType].label is defined %}
-        <div class="conditional-action-condition-panel panel{% if inGroup %} in-group{% endif %}" id="{{ id }}">
+        <div class="cfa-condition-panel{% if inGroup %} in-group{% endif %}" id="{{ id }}">
             <div class="panel-heading pl-0 pr-0">
                 <div class="panel-glue col-sm-2 pl-0{% if '0' == form.vars.name %} hide{% endif %}">
                     {{ form_widget(form.glue) }}
                 </div>
                 <div class="col-sm-2 pr-0 pull-right">
-                    <div class="conditional-action-condition-button d-flex jc-end btn-group btn-group-xs pull-right" role="group">
+                    <div class="cfa-condition-button d-flex jc-end btn-group btn-group-xs pull-right" role="group">
                         {% include '@MauticCore/Helper/button.html.twig' with {
                             buttons: [
                                 {
@@ -73,4 +73,39 @@
             {% endif %}
         {% endfor %}
     {% endfor %}
+{% endblock %}
+
+{% block action_conditions_config_widget %}
+    {{ includeScript('plugins/LeuchtfeuerConditionalFormActionsBundle/Assets/js/conditional-form-actions.js') }}
+    {{ includeStylesheet('plugins/LeuchtfeuerConditionalFormActionsBundle/Assets/css/conditional-form-actions.css') }}
+
+    <div class="hide" data-onload-callback="onFormCfaConditionsBuilder">
+        <select class="chosen form-control"
+                data-cfa-available-conditions-list
+                data-cfa-condition-prototype="{{ form_widget(form.actionConditions.vars.prototype)|e }}"
+                data-cfa-render-condition-properties="{{ path('mautic_cfa_render_condition_action') }}">
+            <option value=""></option>
+            {% for object, field in conditionChoiceFields %}
+                {% set icon = 'company' == object ? 'building' : 'user' %}
+                {% set header = translatorHasId('mautic.lead.' ~ object) ? ('mautic.lead.' ~ object)|trans : object|trans %}
+                <optgroup label="{{ header }}">
+                    {% for value, params in field %}
+                        {% set operators = params.operators is not empty ? params.operators|json_encode() : '{}' %}
+                        <option value="{{ value|e }}"
+                                data-field-id="available-action-skip-option_{{ object }}_{{ value }}"
+                                data-field-object="{{ object }}"
+                                data-field-type="{{ params.properties.type }}"
+                                data-field-operators="{{ operators|e }}"
+                                class="available-action-skip-option-type--{{ object }}">
+                            {{ params.label|trans }}
+                        </option>
+                    {% endfor %}
+                </optgroup>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="hide">
+        {{ form_widget(form.actionConditions) }}
+        {{ form_rest(form) }}
+    </div>
 {% endblock %}
