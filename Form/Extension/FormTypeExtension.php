@@ -10,12 +10,17 @@ use Symfony\Component\Form\AbstractTypeExtension;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
+use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormRenderer;
+use Symfony\Component\Form\FormView;
+use Twig\Environment;
 
 class FormTypeExtension extends AbstractTypeExtension
 {
     public function __construct(
         private Config $pluginConfig,
         private ActionConditionManager $actionConditionManager,
+        private Environment $twig
     ) {
     }
 
@@ -55,12 +60,30 @@ class FormTypeExtension extends AbstractTypeExtension
             'data' => [
                 'actionConditions' => $actionConditionsData,
             ],
+            'attr'        => [
+                'class' => 'conditional-actions-wrapper',
+                'data-conditional-actions' => 'true',
+            ],
             'mapped'      => false,
             'mautic_form' => $entity,
+            'label'       => false,
         ]);
-
     }
 
+    public function finishView(FormView $view, FormInterface $form, array $options): void
+    {
+        if (!$this->pluginConfig->isPublished()) {
+            return;
+        }
+
+        if (isset($view['actionConditionsConfig'])) {
+            $this->twig->getRuntime(FormRenderer::class)
+                ->setTheme(
+                    $view['actionConditionsConfig'],
+                    '@LeuchtfeuerConditionalFormActions/FormTheme/conditional_action_conditions.html.twig'
+                );
+        }
+    }
 
     public static function getExtendedTypes(): iterable
     {

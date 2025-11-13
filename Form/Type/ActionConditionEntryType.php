@@ -47,6 +47,7 @@ class ActionConditionEntryType extends AbstractType
                     'allow_add'      => true,
                     'allow_delete'   => true,
                     'label'          => false,
+                    'block_prefix'   => 'conditional_action_conditions'
                 ]
             )->addModelTransformer($filterModalTransformer)
         );

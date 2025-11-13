@@ -131,6 +131,6 @@ class ConditionType extends AbstractType
 
     public function getBlockPrefix(): string
     {
-        return 'conditional_action_condition_entry';
+        return 'conditional_action_condition';
     }
 }
