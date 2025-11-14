@@ -3,6 +3,7 @@
         initializeBuilders();
         formFieldChangesListener();
         formNewActionListener();
+        initSortableForActions();
     };
 
     const initializeBuilders = function() {
@@ -393,6 +394,73 @@
         });
     };
 
+    const initSortableForActions = function() {
+        const $container = mQuery('#mauticforms_actions');
+
+        if (!$container.length) {
+            return;
+        }
+
+        if ($container.hasClass('ui-sortable')) {
+            $container.sortable('destroy');
+        }
+
+        let bodyOverflow = {};
+
+        $container.sortable({
+            items: '.cfa-action-panel',
+            handle: '.cfa-action-header',
+            cancel: '.action-condition-builder-wrapper, .add-conditions-button-wrapper',
+            distance: 10,
+            helper: function(e, ui) {
+                ui.children().each(function() {
+                    mQuery(this).width(mQuery(this).width());
+                });
+
+                bodyOverflow.overflowX = mQuery('body').css('overflow-x');
+                bodyOverflow.overflowY = mQuery('body').css('overflow-y');
+                mQuery('body').css({
+                    overflowX: 'visible',
+                    overflowY: 'visible'
+                });
+
+                return ui;
+            },
+            scroll: true,
+            scrollSensitivity: 40,
+            scrollSpeed: 40,
+            axis: 'y',
+            cursor: 'move',
+            opacity: 0.7,
+            tolerance: 'pointer',
+            placeholder: 'cfa-sortable-placeholder-action',
+            start: function(e, ui) {
+                ui.item.data('start-pos', ui.item.index());
+                ui.placeholder.height(Math.min(ui.item.outerHeight(), 400));
+                ui.item.find('.action-condition-builder-container').addClass('no-sort');
+            },
+            change: function(e, ui) {
+                ui.placeholder.height(ui.item.outerHeight());
+            },
+            stop: function(e, ui) {
+                mQuery('body').css(bodyOverflow);
+                mQuery(ui.item).attr('style', '');
+                ui.item.find('.action-condition-builder-container').removeClass('no-sort');
+
+                const startPos = ui.item.data('start-pos');
+                const endPos = ui.item.index();
+
+                if (startPos !== endPos) {
+                    mQuery.ajax({
+                        type: "POST",
+                        url: mauticAjaxUrl + "?action=form:reorderActions",
+                        data: mQuery('#mauticforms_actions').sortable("serialize") + "&formId=" + mQuery('#mauticform_sessionId').val()
+                    });
+                }
+            }
+        });
+    };
+
     const initSortableForConditions = function(actionId) {
         const $container = getConditionsContainer(actionId);
 
@@ -408,6 +476,8 @@
 
         $container.sortable({
             items: '.cfa-condition-panel',
+            cancel: 'input, select, textarea, button, a, .btn, .form-control, .chosen-container, .no-sort',
+            distance: 10,
             helper: function(e, ui) {
                 ui.children().each(function() {
                     if (mQuery(this).is(":visible")) {
@@ -428,8 +498,13 @@
             axis: 'y',
             cursor: 'move',
             opacity: 0.7,
+            tolerance: 'intersect',
+            placeholder: 'cfa-sortable-placeholder-condition',
+            forceHelperSize: true,
+            forcePlaceholderSize: true,
             start: function(e, ui) {
                 ui.item.data('start-pos', ui.item.index());
+                ui.placeholder.height(ui.item.outerHeight());
             },
             stop: function(e, ui) {
                 mQuery('body').css(bodyOverflow);

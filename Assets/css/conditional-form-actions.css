@@ -37,6 +37,21 @@
     margin-top: 10px;
 }
 
+.cfa-sortable-placeholder-action {
+    border: 1px dashed var(--layer);
+    margin-bottom: 15px;
+    min-height: 80px;
+    visibility: visible !important;
+}
+
+.cfa-sortable-placeholder-condition {
+    border: 1px dashed var(--layer);
+    margin-top: 10px;
+    margin-bottom: 10px;
+    min-height: 60px;
+    visibility: visible !important;
+}
+
 .cfa-condition-button {
     margin-bottom: -10px;
 }
