@@ -2,6 +2,7 @@
     Mautic.onFormCfaConditionsBuilder = function() {
         initializeBuilders();
         formFieldChangesListener();
+        formNewActionListener();
     };
 
     const initializeBuilders = function() {
@@ -479,6 +480,25 @@
         });
     };
 
+    const formNewActionListener = function() {
+        mQuery(document).ajaxComplete(function(event, xhr, settings) {
+            if (settings.url && settings.url.includes('forms/action/new')) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.mauticContent === 'formAction' && response.success === 1) {
+                        const actionId = response.actionId;
+                        const $action = mQuery('div[data-cfa-action="' + actionId + '"]');
+
+                        setupAddConditionsButton(actionId, $action);
+                        updateConditionsVisibility(actionId, $action);
+                    }
+                } catch (e) {
+                    console.log('Error processing form action response:', e);
+                }
+            }
+        });
+    };
+
     const getConditionCount = function(actionId) {
         return getConditionsContainer(actionId).children('.cfa-condition-panel').length;
     };
@@ -499,6 +519,7 @@
             $parentEl.removeClass('in-group');
         }
     };
+
 
     // Public API
     Mautic.cfaConvertConditionInput = convertLeadFilterInput;
