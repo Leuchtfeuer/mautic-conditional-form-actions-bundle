@@ -103,6 +103,7 @@
 
     <div class="hide" data-onload-callback="onFormCfaConditionsBuilder">
         <select class="chosen form-control"
+                data-placeholder="{{ 'mautic.plugin.cfa.form.available_conditions_list.placeholder'|trans }}"
                 data-cfa-available-conditions-list
                 data-cfa-condition-prototype="{{ conditionPrototype|e }}"
                 data-cfa-render-condition-properties="{{ path('mautic_cfa_render_condition_action') }}"

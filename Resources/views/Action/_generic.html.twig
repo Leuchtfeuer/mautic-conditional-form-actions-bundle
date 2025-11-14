@@ -16,14 +16,23 @@
             <span class="action-descr">{{ action.description|purify }}</span>
         {% endif %}
     </div>
-    + TODO condition builder
 
-    <div class="action-condition-builder-wrapper">
-        <div class="row">
-            <div class="col-md-4" data-cfa-available-conditions-list-container></div>
-        </div>
-        <div class="action-condition-builder-container">
+    <div class="cfa-add-conditions-button-wrapper" data-add-conditions-button-wrapper="{{ id }}">
+        <a href="#" data-add-conditions-button="{{ id }}">
+            <i class="ri-add-line"></i> {{ 'mautic.plugin.cfa.form.button.add_conditions'|trans }}
+        </a>
+    </div>
 
-        </div>
+    <div class="cfa-action-condition-builder-wrapper" data-action-condition-builder-wrapper="{{ id }}">
+        {% if id starts with 'new' %}
+            <div class="alert alert-info">
+                {{ 'mautic.plugin.cfa.form.info.new_action_added'|trans }}
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-md-4" data-cfa-available-conditions-list-container></div>
+            </div>
+            <div class="cfa-action-condition-builder-container" data-action-condition-list="{{ id }}"></div>
+        {% endif %}
     </div>
 </div>

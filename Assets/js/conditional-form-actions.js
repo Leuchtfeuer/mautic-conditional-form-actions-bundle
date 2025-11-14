@@ -31,8 +31,11 @@
         // Move the form wrapper into the action container
         const $formWrapper = mQuery('#mauticform_actionConditionsConfig_actionConditions_' + actionId);
         if ($formWrapper.length) {
-            $action.find('div.action-condition-builder-container').html($formWrapper);
+            $action.find('div[data-action-condition-list]').html($formWrapper);
         }
+
+        setupAddConditionsButton(actionId, $action);
+        updateConditionsVisibility(actionId, $action);
 
         // Attach events to existing conditions
         const $container = getConditionsContainer(actionId);
@@ -56,6 +59,38 @@
 
         // Initialize drag-and-drop sorting
         initSortableForConditions(actionId);
+    };
+
+    const setupAddConditionsButton = function(actionId, $action) {
+        const $button = $action.find('[data-add-conditions-button="' + actionId + '"]');
+
+        $button.on('click', function(e) {
+            e.preventDefault();
+            showConditionsBuilder(actionId, $action);
+        });
+    };
+
+    const showConditionsBuilder = function(actionId, $action) {
+        const $buttonWrapper = $action.find('[data-add-conditions-button-wrapper="' + actionId + '"]');
+        const $builderWrapper = $action.find('[data-action-condition-builder-wrapper="' + actionId + '"]');
+        $buttonWrapper.hide();
+        $builderWrapper.show();
+    };
+
+    const hideConditionsBuilder = function(actionId, $action) {
+        const $buttonWrapper = $action.find('[data-add-conditions-button-wrapper="' + actionId + '"]');
+        const $builderWrapper = $action.find('[data-action-condition-builder-wrapper="' + actionId + '"]');
+        $builderWrapper.hide();
+        $buttonWrapper.show();
+    };
+
+    const updateConditionsVisibility = function(actionId, $action) {
+        const conditionCount = getConditionCount(actionId);
+        if (conditionCount > 0) {
+            showConditionsBuilder(actionId, $action);
+        } else {
+            hideConditionsBuilder(actionId, $action);
+        }
     };
 
     const addCondition = function($option, $select) {
@@ -107,7 +142,7 @@
         convertLeadFilterInput('#' + filterIdBase + 'operator');
 
         // Reposition if applicable
-        Mautic.updateFilterPositioning(mQuery('#' + filterIdBase + 'glue'));
+        updateConditionPositioning(mQuery('#' + filterIdBase + 'glue'));
     };
 
     const convertLeadFilterInput = function(el) {
@@ -273,7 +308,7 @@
             $condition.attr('id', idPrefix + '_conditions_' + counter);
 
             // Update glue positioning
-            Mautic.updateFilterPositioning($condition.find('select.glue-select').first());
+            updateConditionPositioning($condition.find('select.glue-select').first());
 
             // Find all elements within this condition that need renumbering
             $condition.find('[id^="' + idPrefix + '_conditions_"]').each(function() {
@@ -448,8 +483,25 @@
         return getConditionsContainer(actionId).children('.cfa-condition-panel').length;
     };
 
+    const updateConditionPositioning = function (el) {
+        const $el       = mQuery(el);
+        const $parentEl = $el.closest('.cfa-condition-panel');
+        const list      = $parentEl.parent().children('.cfa-condition-panel');
+        const isFirst = list.index($parentEl) === 0;
+
+        if (isFirst) {
+            $el.val('and');
+        }
+
+        if ($el.val() === 'and' && !isFirst) {
+            $parentEl.addClass('in-group');
+        } else {
+            $parentEl.removeClass('in-group');
+        }
+    };
+
     // Public API
     Mautic.cfaConvertConditionInput = convertLeadFilterInput;
     Mautic.cfaReorderConditions = reorderConditions;
-    Mautic.cfaInitializeSingleBuilder = initializeSingleBuilder;
+    Mautic.cfaUpdateConditionPositioning = updateConditionPositioning;
 }(Mautic, mQuery));
