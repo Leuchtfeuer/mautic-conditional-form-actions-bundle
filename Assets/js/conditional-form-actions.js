@@ -1,34 +1,62 @@
 (function (Mautic, mQuery){
     Mautic.onFormCfaConditionsBuilder = function() {
         initializeBuilders();
+        formFieldChangesListener();
     };
 
     const initializeBuilders = function() {
         const $actions = mQuery('div[data-cfa-action]');
-        const $select = mQuery('select[data-cfa-available-conditions-list]');
+        const $templateSelect = mQuery('select[data-cfa-available-conditions-list]');
 
         $actions.each(function() {
-            const $clonedSelect = $select.clone();
-            const actionId = mQuery(this).data('cfa-action');
-            $clonedSelect.attr('data-cfa-action-id', actionId);
-            mQuery(this).find('div[data-cfa-available-conditions-list-container]').append($clonedSelect);
+            const $action = mQuery(this);
+            const actionId = $action.data('cfa-action');
 
-            const $builder = mQuery('#mauticform_actionConditionsConfig_actionConditions_' + actionId);
-            if ($builder.length) {
-                mQuery(this).find('div.action-condition-builder-container').html($builder);
-            }
-
-            $clonedSelect.on('change', function() {
-                const value = mQuery(this).val()
-                if (value) {
-                    const $option = mQuery('option:selected', this);
-                    addCondition($option, $clonedSelect);
-                    mQuery(this).val('');
-                    mQuery(this).trigger('chosen:updated');
-                }
-            });
+            initializeSingleBuilder(actionId, $action, $templateSelect);
         });
-    }
+    };
+
+    const initializeSingleBuilder = function(actionId, $action, $templateSelect) {
+        // Skip if already initialized
+        if ($action.data('cfa-initialized')) {
+            return;
+        }
+        $action.data('cfa-initialized', true);
+
+        // Clone and setup the select dropdown
+        const $clonedSelect = $templateSelect.clone();
+        $clonedSelect.attr('data-cfa-action-id', actionId);
+        $action.find('div[data-cfa-available-conditions-list-container]').append($clonedSelect);
+
+        // Move the form wrapper into the action container
+        const $formWrapper = mQuery('#mauticform_actionConditionsConfig_actionConditions_' + actionId);
+        if ($formWrapper.length) {
+            $action.find('div.action-condition-builder-container').html($formWrapper);
+        }
+
+        // Attach events to existing conditions
+        const $container = getConditionsContainer(actionId);
+        $container.children('.cfa-condition-panel').each(function (index, condition) {
+            attachRemoveEvents(actionId, mQuery(condition));
+        });
+
+        // Handle select change to add new conditions
+        $clonedSelect.on('change', function() {
+            const value = mQuery(this).val();
+            if (value) {
+                const $option = mQuery('option:selected', this);
+                addCondition($option, $clonedSelect);
+                mQuery(this).val('');
+                mQuery(this).trigger('chosen:updated');
+            }
+        });
+
+        // Attach UI handlers for filter forms
+        attachJsUiOnFilterForms(actionId);
+
+        // Initialize drag-and-drop sorting
+        initSortableForConditions(actionId);
+    };
 
     const addCondition = function($option, $select) {
         const label = $option.text();
@@ -37,7 +65,7 @@
         const fieldObject = $option.data('field-object'); // lead|company|form
         const fieldOperators = $option.data('field-operators');
         const actionId = $select.data('cfa-action-id');
-        const $conditionContainer = mQuery('#mauticform_actionConditionsConfig_actionConditions_'+ actionId +'_conditions');
+        const $conditionContainer = getConditionsContainer(actionId);
         const filterNum = getConditionCount(actionId);
         const filterIdBase = "mauticform_actionConditionsConfig_actionConditions_" + actionId + "_conditions_" + filterNum + "_";
         const filterBase  = "mauticform[actionConditionsConfig][actionConditions][" + actionId + "][conditions][" + filterNum + "]";
@@ -62,7 +90,7 @@
         }
         $prototype.find(".inline-spacer").append(fieldObject);
 
-        // attachEvents($prototype); todo
+        attachRemoveEvents(actionId, $prototype);
 
         $prototype.find("input[name='" + filterBase + "[field]']").val(field);
         $prototype.find("input[name='" + filterBase + "[type]']").val(fieldType);
@@ -75,18 +103,15 @@
             newOption.appendTo(mQuery('#' + filterIdBase + 'operator'));
         });
 
-        // todo Convert based on first option in list
+        // Convert based on the first option in a list
         convertLeadFilterInput('#' + filterIdBase + 'operator');
 
-        // todo Reposition if applicable
-        // Mautic.updateFilterPositioning(mQuery('#' + filterIdBase + 'glue'));
-    }
+        // Reposition if applicable
+        Mautic.updateFilterPositioning(mQuery('#' + filterIdBase + 'glue'));
+    };
 
     const convertLeadFilterInput = function(el) {
         const operatorSelect = mQuery(el);
-
-        // Extract actionId and conditionNum from ID
-        // Format: mauticform_actionConditionsConfig_actionConditions_{actionId}_conditions_{conditionNum}_operator
         const regExp = /_actionConditions_([^_]+)_conditions_(\d+)_operator/;
         const matches = regExp.exec(operatorSelect.attr('id'));
 
@@ -105,16 +130,92 @@
         const filterId = '#' + fieldBase + '_properties_filter';
         const formId = mQuery('#mauticform_sessionId').val();
 
-        loadFilterForm(formId, actionId, conditionNum, fieldObject.val(), fieldAlias.val(), operatorSelect.val(), function(propertiesFields) {
+        loadConditionForm(formId, actionId, conditionNum, fieldObject.val(), fieldAlias.val(), operatorSelect.val(), function(propertiesFields) {
             const selector = '#' + fieldBase;
             mQuery(selector + '_properties').html(propertiesFields);
-            // todo triggerOnPropertiesFormLoadedEvent(selector, filterValue);
+            triggerOnPropertiesFormLoadedEvent(actionId, selector, filterValue);
         });
 
-        // todo Mautic.setProcessorForFilterValue(filterId, operatorSelect.val());
+        Mautic.setProcessorForFilterValue(filterId, operatorSelect.val());
     };
 
-    const loadFilterForm = function(formId, actionId, conditionNum, fieldObject, fieldAlias, operator, resultHtml, search = null) {
+    const getConditionsContainer = function(actionId) {
+        return mQuery('#mauticform_actionConditionsConfig_actionConditions_' + actionId + '_conditions');
+    };
+
+    const triggerOnPropertiesFormLoadedEvent = function(actionId, selector, filterValue) {
+        const $container = getConditionsContainer(actionId);
+        $container.trigger('filter.properties.form.loaded', [selector, filterValue]);
+    };
+
+    const attachJsUiOnFilterForms = function(actionId) {
+        const $container = getConditionsContainer(actionId);
+
+        $container
+            .off('filter.properties.form.loaded')
+            .on('filter.properties.form.loaded', function(event, selector, filterValue) {
+                Mautic.activateChosenSelect(selector + '_properties select');
+                const fieldType = mQuery(selector + '_type').val();
+                const fieldAlias = mQuery(selector + '_field').val();
+                const filterFieldEl = mQuery(selector + '_properties_filter');
+
+                if (filterValue) {
+                    filterFieldEl.val(filterValue);
+                    if (filterFieldEl.is('select')) {
+                        filterFieldEl.trigger('chosen:updated');
+                    }
+                }
+
+                if (fieldType === 'lookup') {
+                    Mautic.activateLookupTypeahead(filterFieldEl.parent());
+                } else if (fieldType === 'datetime') {
+                    filterFieldEl.datetimepicker({
+                        format: 'Y-m-d H:i',
+                        lazyInit: true,
+                        validateOnBlur: false,
+                        allowBlank: true,
+                        scrollMonth: false,
+                        scrollInput: false
+                    });
+                } else if (fieldType === 'date') {
+                    filterFieldEl.datetimepicker({
+                        timepicker: false,
+                        format: 'Y-m-d',
+                        lazyInit: true,
+                        validateOnBlur: false,
+                        allowBlank: true,
+                        scrollMonth: false,
+                        scrollInput: false,
+                        closeOnDateSelect: true
+                    });
+                } else if (fieldType === 'time') {
+                    filterFieldEl.datetimepicker({
+                        datepicker: false,
+                        format: 'H:i',
+                        lazyInit: true,
+                        validateOnBlur: false,
+                        allowBlank: true,
+                        scrollMonth: false,
+                        scrollInput: false
+                    });
+                } else if (fieldType === 'lookup_id') {
+                    const displayFieldEl = mQuery(selector + '_properties_display');
+                    const fieldCallback = displayFieldEl.attr('data-field-callback');
+                    if (fieldCallback && typeof Mautic[fieldCallback] === 'function') {
+                        const fieldOptions = displayFieldEl.attr('data-field-list');
+                        Mautic[fieldCallback](selector.replace('#', '') + '_properties_display', fieldAlias, fieldOptions);
+                    }
+                }
+            });
+
+        // Trigger event for existing conditions
+        mQuery('.cfa-condition-panel', $container).each(function() {
+            const selector = '#' + mQuery(this).attr('id');
+            triggerOnPropertiesFormLoadedEvent(actionId, selector);
+        });
+    };
+
+    const loadConditionForm = function(formId, actionId, conditionNum, fieldObject, fieldAlias, operator, resultHtml, search = null) {
         const url = mQuery('[data-cfa-render-condition-properties]').data('cfa-render-condition-properties');
         mQuery.ajax({
             showLoadingBar: true,
@@ -124,8 +225,8 @@
                 fieldAlias: fieldAlias,
                 fieldObject: fieldObject,
                 operator: operator,
-                actionId: actionId,           // Added
-                conditionNum: conditionNum,   // Renamed from filterNum
+                actionId: actionId,
+                conditionNum: conditionNum,
                 search: search,
                 formId: formId
             },
@@ -139,10 +240,216 @@
         });
     };
 
-    const getConditionCount = function(actionId) {
-        const $container = mQuery('#mauticform_actionConditionsConfig_actionConditions_'+ actionId +'_conditions');
-        return $container.children('.cfa-condition-panel').length;
+    const attachRemoveEvents = function(actionId, $condition) {
+        $condition.find('a.remove-selected').each(function (index, el) {
+            mQuery(el).on('click', function () {
+                $condition.animate(
+                    {'opacity': 0},
+                    'fast',
+                    function () {
+                        mQuery('*[role="tooltip"]').tooltip('destroy');
+                        mQuery(this).remove();
+                        reorderConditions(actionId);
+                    }
+                );
+            });
+        });
     };
 
+    const reorderConditions = function(actionId) {
+        // Update the condition numbers so they are ordered correctly when processed server side
+        let counter = 0;
+        const $container = getConditionsContainer(actionId);
+        const $conditions = $container.children('.cfa-condition-panel');
+
+        // Name and ID prefixes for this specific action
+        const namePrefix = "mauticform[actionConditionsConfig][actionConditions][" + actionId + "]";
+        const idPrefix = "mauticform_actionConditionsConfig_actionConditions_" + actionId;
+
+        $conditions.each(function() {
+            const $condition = mQuery(this);
+
+            // Update the condition panel ID
+            $condition.attr('id', idPrefix + '_conditions_' + counter);
+
+            // Update glue positioning
+            Mautic.updateFilterPositioning($condition.find('select.glue-select').first());
+
+            // Find all elements within this condition that need renumbering
+            $condition.find('[id^="' + idPrefix + '_conditions_"]').each(function() {
+                const $element = mQuery(this);
+                const id = $element.attr('id');
+                const name = $element.attr('name');
+
+                // Skip prototype elements
+                if (id && id.includes('__conditionIndex__')) {
+                    return true;
+                }
+
+                const isProperties = id.includes("_properties_");
+                let suffix = id.split(/[_]+/).pop();
+                let newName;
+                let newId;
+
+                if (name) {
+                    if (isProperties) {
+                        // Handle properties fields: name[actionConditionsConfig][actionConditions][actionId][conditions][counter][properties][filter]
+                        const suffixIdMatch = id.match(/_properties_(.*)$/);
+                        const suffixNameMatch = name.match(/\[properties\](.*)$/);
+                        const suffixId = suffixIdMatch ? suffixIdMatch[1] : suffix;
+                        const suffixName = suffixNameMatch ? suffixNameMatch[1] : suffix;
+
+                        newName = namePrefix + '[conditions][' + counter + '][properties]' + suffixName;
+                        newId = idPrefix + '_conditions_' + counter + '_properties_' + suffixId;
+                    } else {
+                        // Handle regular fields: name[actionConditionsConfig][actionConditions][actionId][conditions][counter][field]
+                        newName = namePrefix + '[conditions][' + counter + '][' + suffix + ']';
+                        newId = idPrefix + '_conditions_' + counter + '_' + suffix;
+
+                        // Preserve array notation if present
+                        if (name.slice(-2) === '[]') {
+                            newName += '[]';
+                        }
+                    }
+
+                    $element.attr('name', newName);
+                } else {
+                    // Element has no name attribute, just update ID
+                    if (isProperties) {
+                        const suffixIdMatch = id.match(/_properties_(.*)$/);
+                        const suffixId = suffixIdMatch ? suffixIdMatch[1] : suffix;
+                        newId = idPrefix + '_conditions_' + counter + '_properties_' + suffixId;
+                    } else {
+                        newId = idPrefix + '_conditions_' + counter + '_' + suffix;
+                    }
+                }
+
+                $element.attr('id', newId);
+
+                // Reinitialize Chosen select for filter dropdowns
+                if ($element.is('select') && suffix === 'filter' && isProperties) {
+                    Mautic.destroyChosen($element);
+                    Mautic.activateChosenSelect($element);
+                }
+
+                // Handle radio buttons for date type mode
+                if ($element.is(':radio') && id.includes("_dateTypeMode_")) {
+                    if ($element.closest('label').hasClass('active')) {
+                        $element.click();
+                    }
+                }
+            });
+
+            // Reset panel heading width (something sets it inline)
+            $condition.find('.panel-heading').css('width', '');
+
+            ++counter;
+        });
+
+        // Update glue visibility (hide first, show rest)
+        $conditions.find('.panel-glue').removeClass('hide');
+        $conditions.first().find('.panel-glue').addClass('hide');
+
+        // Reinitialize tooltips
+        const $tooltips = $conditions.find("*[data-toggle='tooltip']");
+        $tooltips.each(function() {
+            mQuery(this).tooltip({html: true, container: 'body'});
+        });
+    };
+
+    const initSortableForConditions = function(actionId) {
+        const $container = getConditionsContainer(actionId);
+
+        if (!$container.length) {
+            return;
+        }
+
+        if ($container.hasClass('ui-sortable')) {
+            $container.sortable('destroy');
+        }
+
+        let bodyOverflow = {};
+
+        $container.sortable({
+            items: '.cfa-condition-panel',
+            helper: function(e, ui) {
+                ui.children().each(function() {
+                    if (mQuery(this).is(":visible")) {
+                        mQuery(this).width(mQuery(this).width());
+                    }
+                });
+
+                bodyOverflow.overflowX = mQuery('body').css('overflow-x');
+                bodyOverflow.overflowY = mQuery('body').css('overflow-y');
+                mQuery('body').css({
+                    overflowX: 'visible',
+                    overflowY: 'visible'
+                });
+
+                return ui;
+            },
+            scroll: true,
+            axis: 'y',
+            cursor: 'move',
+            opacity: 0.7,
+            start: function(e, ui) {
+                ui.item.data('start-pos', ui.item.index());
+            },
+            stop: function(e, ui) {
+                mQuery('body').css(bodyOverflow);
+
+                const startPos = ui.item.data('start-pos');
+                const endPos = ui.item.index();
+
+                if (startPos !== endPos) {
+                    reorderConditions(actionId);
+                }
+            }
+        });
+    };
+
+    const formFieldChangesListener = function() {
+        mQuery(document).ajaxComplete(function(event, xhr, settings) {
+            if (settings.url && settings.url.includes('forms/field/new')) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.mauticContent === 'formField' && response.success === 1) {
+                        const $selects = mQuery('select[data-cfa-action-id]');
+
+                        $selects.each(function() {
+                            const $select = mQuery(this);
+                            const infoMessage = $select.data('new-fields-info');
+
+                            if (!infoMessage) {
+                                return;
+                            }
+
+                            mQuery('option.new-field-notification', $select).remove();
+                            const infoOption = mQuery('<option class="new-field-notification" disabled>' + infoMessage + '</option>');
+                            const $formOptgroup = mQuery('optgroup[label="form"]', $select);
+
+                            if ($formOptgroup.length) {
+                                $formOptgroup.prepend(infoOption);
+                            }
+
+                            if ($select.is(':visible') && ($select.hasClass('chosen-select') || $select.data('chosen'))) {
+                                $select.trigger('chosen:updated');
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.log('Error processing form field response:', e);
+                }
+            }
+        });
+    };
+
+    const getConditionCount = function(actionId) {
+        return getConditionsContainer(actionId).children('.cfa-condition-panel').length;
+    };
+
+    // Public API
     Mautic.cfaConvertConditionInput = convertLeadFilterInput;
+    Mautic.cfaReorderConditions = reorderConditions;
+    Mautic.cfaInitializeSingleBuilder = initializeSingleBuilder;
 }(Mautic, mQuery));

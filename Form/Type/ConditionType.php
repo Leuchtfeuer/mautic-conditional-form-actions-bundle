@@ -44,7 +44,7 @@ class ConditionType extends AbstractType
                 ],
                 'attr' => [
                     'class'    => 'form-control input-sm not-chosen glue-select',
-                    'onchange' => 'Mautic.conditionalActionReorderConditions(this)',
+                    'onchange' => 'Mautic.updateFilterPositioning(this)',
                 ],
             ]
         );

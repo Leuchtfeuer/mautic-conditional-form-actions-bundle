@@ -105,7 +105,8 @@
         <select class="chosen form-control"
                 data-cfa-available-conditions-list
                 data-cfa-condition-prototype="{{ conditionPrototype|e }}"
-                data-cfa-render-condition-properties="{{ path('mautic_cfa_render_condition_action') }}">
+                data-cfa-render-condition-properties="{{ path('mautic_cfa_render_condition_action') }}"
+                data-new-fields-info="{{ 'mautic.plugin.cfa.form.info.new_fields_added'|trans }}">
             <option value=""></option>
             {% for object, field in conditionChoiceFields %}
                 {% set icon = 'company' == object ? 'building' : 'user' %}
