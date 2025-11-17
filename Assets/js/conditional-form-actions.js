@@ -476,7 +476,6 @@
 
         $container.sortable({
             items: '.cfa-condition-panel',
-            cancel: 'input, select, textarea, button, a, .btn, .form-control, .chosen-container, .no-sort',
             distance: 10,
             helper: function(e, ui) {
                 ui.children().each(function() {
