@@ -40,7 +40,7 @@ class FormBuilderSubscriber implements EventSubscriberInterface
         }
 
         $actionConditionsConfig = $mauticForm['actionConditionsConfig'] ?? [];
-        $actionConditionsData = $actionConditionsConfig['actionConditions'] ?? [];
+        $actionConditionsData   = $actionConditionsConfig['actionConditions'] ?? [];
 
         $this->actionConditionManager->saveActionConditions($form, $actionConditionsData);
     }

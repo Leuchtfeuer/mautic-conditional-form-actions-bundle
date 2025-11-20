@@ -30,7 +30,6 @@ class FormTypeExtension extends AbstractTypeExtension
             return;
         }
 
-
         $builder->addEventListener(FormEvents::PRE_SET_DATA, [$this, 'onPreSetData']);
     }
 
@@ -46,7 +45,7 @@ class FormTypeExtension extends AbstractTypeExtension
             $actionConditions = $this->actionConditionManager->getFormActionConditions($entity);
 
             foreach ($entity->getActions() as $action) {
-                $actionId = $action->getId();
+                $actionId  = $action->getId();
                 $condition = $actionConditions[$actionId] ?? null;
 
                 $actionConditionsData[$actionId] = [

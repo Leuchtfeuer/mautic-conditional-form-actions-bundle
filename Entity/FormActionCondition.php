@@ -49,5 +49,4 @@ class FormActionCondition
 
         return $this;
     }
-
 }

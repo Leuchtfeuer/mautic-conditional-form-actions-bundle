@@ -12,19 +12,16 @@ use Mautic\LeadBundle\Exception\PrimaryCompanyNotFoundException;
 use Mautic\LeadBundle\Segment\OperatorOptions;
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Entity\FormActionConditionRepository;
 
-class ConditionsEvaluator {
-
-
+class ConditionsEvaluator
+{
     public function __construct(
         private FormActionConditionRepository $formActionConditionRepository,
         private CompanyLeadRepository $companyLeadRepository
-    )
-    {
+    ) {
     }
 
     public function shouldExecute(Action $action, Submission $submission, Lead $contact): bool
     {
-
         $conditionEntity = $this->formActionConditionRepository->findByActionId($action->getId());
 
         if (null === $conditionEntity) {
@@ -32,7 +29,7 @@ class ConditionsEvaluator {
             return true;
         }
 
-        $conditions = $conditionEntity->getConditions();
+        $conditions     = $conditionEntity->getConditions();
         $leadArray      = $contact->getProfileFields();
 
         try {

@@ -10,7 +10,6 @@ use Mautic\CoreBundle\Entity\CommonRepository;
 class FormActionConditionRepository extends CommonRepository
 {
     /**
-     * @param int $formId
      * @return array<int, FormActionCondition>
      */
     public function findByFormId(int $formId): array

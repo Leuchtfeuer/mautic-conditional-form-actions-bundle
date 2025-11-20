@@ -20,7 +20,7 @@ class ConditionType extends AbstractType
 {
     public function __construct(
         private FormAdjustmentsProviderInterface $formAdjustmentsProvider,
-        private AvailableOptionsProvider         $availableOptionsProvider,
+        private AvailableOptionsProvider $availableOptionsProvider,
     ) {
     }
 

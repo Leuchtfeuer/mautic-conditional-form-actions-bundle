@@ -40,10 +40,9 @@ class FormActionConditionsConfigType extends AbstractType
 
     public function buildView(FormView $view, FormInterface $form, array $options): void
     {
-        $mauticForm           = $form->getConfig()->getAttribute('mautic_form');
+        $mauticForm                          = $form->getConfig()->getAttribute('mautic_form');
         $view->vars['conditionChoiceFields'] = $this->availableOptionsProvider->getAvailableOptions($mauticForm);
     }
-
 
     public function configureOptions(OptionsResolver $resolver): void
     {

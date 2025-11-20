@@ -18,16 +18,15 @@ class SubmissionModelDecorated extends SubmissionModel
         $this->conditionsEvaluator = $conditionsEvaluator;
     }
 
-
     protected function executeFormActions(SubmissionEvent $event): void
     {
         $actions          = $event->getSubmission()->getForm()->getActions();
         $customComponents = $this->formModel->getCustomComponents();
         $availableActions = $customComponents['actions'] ?? [];
 
-        $validActions = $actions->filter(function (Action $action) use ($availableActions, $event) {
+        $validActions = $actions->filter(function (Action $action) use ($availableActions, $event): bool {
             $isActionTypeAvailable = array_key_exists($action->getType(), $availableActions);
-            $shouldExecuteAction = $this->conditionsEvaluator->shouldExecute(
+            $shouldExecuteAction   = $this->conditionsEvaluator->shouldExecute(
                 $action,
                 $event->getSubmission(),
                 $event->getLead()
@@ -43,5 +42,4 @@ class SubmissionModelDecorated extends SubmissionModel
             }
         );
     }
-
 }

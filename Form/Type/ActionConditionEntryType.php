@@ -17,7 +17,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ActionConditionEntryType extends AbstractType
 {
     public function __construct(
-        private TranslatorInterface      $translator,
+        private TranslatorInterface $translator,
         private AvailableOptionsProvider $availableOptionsProvider
     ) {
     }
@@ -47,7 +47,7 @@ class ActionConditionEntryType extends AbstractType
                     'allow_add'      => true,
                     'allow_delete'   => true,
                     'label'          => false,
-                    'block_prefix'   => 'conditional_action_conditions'
+                    'block_prefix'   => 'conditional_action_conditions',
                 ]
             )->addModelTransformer($filterModalTransformer)
         );

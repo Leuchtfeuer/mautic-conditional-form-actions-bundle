@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\EventListener;
 
-
 use Mautic\FormBundle\Event\FormBuilderEvent;
 use Mautic\FormBundle\FormEvents;
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Integration\Config;
@@ -12,7 +11,6 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class InjectActionTemplateSubscriber implements EventSubscriberInterface
 {
-
     private const ACTION_TEMPLATE = '@LeuchtfeuerConditionalFormActions/Action/_generic.html.twig';
 
     public function __construct(
@@ -30,7 +28,7 @@ class InjectActionTemplateSubscriber implements EventSubscriberInterface
 
     /**
      * We want to set the template for all events;
-     * since there is no public method in the event, we have to make it using the ReflectionClass
+     * since there is no public method in the event, we have to make it using the ReflectionClass.
      */
     public function onFormBuild(FormBuilderEvent $event): void
     {
@@ -59,5 +57,4 @@ class InjectActionTemplateSubscriber implements EventSubscriberInterface
 
         $prop->setValue($event, $actions);
     }
-
 }

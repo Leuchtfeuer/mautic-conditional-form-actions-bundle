@@ -17,7 +17,6 @@ class ActionConditionManager
     }
 
     /**
-     * @param Form $form
      * @return array<int, FormActionCondition>
      */
     public function getFormActionConditions(Form $form): array
@@ -26,7 +25,6 @@ class ActionConditionManager
     }
 
     /**
-     * @param int $formId
      * @return array<int, FormActionCondition>
      */
     public function getFormActionConditionsByFormId(int $formId): array
@@ -35,9 +33,8 @@ class ActionConditionManager
     }
 
     /**
-     * Save action conditions for a form
+     * Save action conditions for a form.
      *
-     * @param Form $form
      * @param array<string, array<string, mixed>> $actionConditionsData
      */
     public function saveActionConditions(Form $form, array $actionConditionsData): void
@@ -49,28 +46,28 @@ class ActionConditionManager
             $actionId = $data['actionId'] ?? null;
 
             // Skip temporary IDs - we'll handle those separately
-            if (!$actionId || str_starts_with((string)$actionId, 'temp_')) {
+            if (!$actionId || str_starts_with((string) $actionId, 'temp_')) {
                 continue;
             }
 
-            $action = $this->findActionById($form, (int)$actionId);
+            $action = $this->findActionById($form, (int) $actionId);
             if (!$action) {
                 continue;
             }
 
-            $processedActionIds[] = (int)$actionId;
-            $conditions = $data['conditions'] ?? null;
+            $processedActionIds[] = (int) $actionId;
+            $conditions           = $data['conditions'] ?? null;
 
             if ($conditions) {
                 // Create or update condition
-                $condition = $existingConditions[(int)$actionId] ?? new FormActionCondition();
+                $condition = $existingConditions[(int) $actionId] ?? new FormActionCondition();
                 $condition->setAction($action);
                 $condition->setConditions($conditions);
 
                 $this->entityManager->persist($condition);
-            } elseif (isset($existingConditions[(int)$actionId])) {
+            } elseif (isset($existingConditions[(int) $actionId])) {
                 // Remove condition if conditions are empty
-                $this->entityManager->remove($existingConditions[(int)$actionId]);
+                $this->entityManager->remove($existingConditions[(int) $actionId]);
             }
         }
 
