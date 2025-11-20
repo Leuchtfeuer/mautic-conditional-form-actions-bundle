@@ -45,9 +45,7 @@ class InjectActionTemplateSubscriber implements EventSubscriberInterface
         $prop = $rc->getProperty('actions');
         $prop->setAccessible(true);
 
-        /** @var array<string,array> $actions */
         $actions = $prop->getValue($event);
-
         foreach ($actions as &$action) {
             if (empty($action['template'])) {
                 $action['template'] = self::ACTION_TEMPLATE;
