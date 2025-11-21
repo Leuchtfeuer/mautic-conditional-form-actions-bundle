@@ -3,6 +3,7 @@
         initializeBuilders();
         formFieldChangesListener();
         formNewActionListener();
+        formDeleteActionListener();
         initSortableForActions();
     };
 
@@ -565,6 +566,24 @@
 
                         setupAddConditionsButton(actionId, $action);
                         updateConditionsVisibility(actionId, $action);
+                    }
+                } catch (e) {
+                    console.log('Error processing form action response:', e);
+                }
+            }
+        });
+    };
+    const formDeleteActionListener = function() {
+        mQuery(document).ajaxComplete(function(event, xhr, settings) {
+            if (settings.url && settings.url.includes('forms/action/delete')) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.mauticContent === 'formAction' && response.success === 1) {
+                        const urlPath = settings.url.split('?')[0];
+                        const urlParts = urlPath.split('/');
+                        const actionId = urlParts[urlParts.length - 1];
+                        const $action = mQuery('div[data-cfa-action="' + actionId + '"]');
+                        $action.hide('fast');
                     }
                 } catch (e) {
                     console.log('Error processing form action response:', e);
