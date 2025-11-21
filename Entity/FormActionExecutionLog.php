@@ -10,10 +10,9 @@ use Mautic\FormBundle\Entity\Submission;
 #[ORM\Table(name: 'form_action_execution_logs')]
 class FormActionExecutionLog
 {
-
-    public const DETAILS_CONDITIONS_MET = 'conditions_met';
+    public const DETAILS_CONDITIONS_MET     = 'conditions_met';
     public const DETAILS_CONDITIONS_NOT_MET = 'conditions_not_met';
-    public const DETAILS_ERROR = 'execution_error';
+    public const DETAILS_ERROR              = 'execution_error';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -55,6 +54,7 @@ class FormActionExecutionLog
     public function setSubmission(Submission $submission): self
     {
         $this->submission = $submission;
+
         return $this;
     }
 
@@ -66,6 +66,7 @@ class FormActionExecutionLog
     public function setAction(Action $action): self
     {
         $this->action = $action;
+
         return $this;
     }
 
@@ -77,6 +78,7 @@ class FormActionExecutionLog
     public function setIsExecuted(bool $isExecuted): self
     {
         $this->isExecuted = $isExecuted;
+
         return $this;
     }
 
@@ -88,6 +90,7 @@ class FormActionExecutionLog
     public function setLogDetails(?string $logDetails): self
     {
         $this->logDetails = $logDetails;
+
         return $this;
     }
 

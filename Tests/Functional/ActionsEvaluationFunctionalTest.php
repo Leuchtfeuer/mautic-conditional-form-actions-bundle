@@ -164,7 +164,7 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
         /** @var FormActionExecutionLog|null $log */
         $log = $logRepo->findOneBy([
             'submission' => $submission,
-            'action'     => $actionId
+            'action'     => $actionId,
         ]);
 
         Assert::assertNotNull($log, 'No execution log found for this action/submission combination.');

@@ -67,7 +67,6 @@ class SubmissionModelDecorated extends SubmissionModel
                     true,
                     FormActionExecutionLog::DETAILS_CONDITIONS_MET
                 );
-
             } catch (\Throwable $e) {
                 $this->logRepository->logExecution(
                     $event->getSubmission(),
