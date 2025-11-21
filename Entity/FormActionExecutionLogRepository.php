@@ -23,6 +23,6 @@ class FormActionExecutionLogRepository extends CommonRepository
         $log->setIsExecuted($isExecuted);
         $log->setLogDetails($details);
         $this->getEntityManager()->persist($log);
-        $this->getEntityManager()->flush($log);
+        $this->getEntityManager()->flush();
     }
 }

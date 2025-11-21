@@ -35,7 +35,7 @@ class Version_0_0_3 extends AbstractMigration
 
         $this->addSql("CREATE TABLE `{$this->concatPrefix($this->table)}`
 (
-    id BIGINT UNSIGNED AUTO_INCREMENT NOT NULL,
+    id INT UNSIGNED AUTO_INCREMENT NOT NULL,
     submission_id {$submissionIdType} NOT NULL,
     action_id {$actionIdType} NOT NULL,
     is_executed TINYINT(1) NOT NULL,
