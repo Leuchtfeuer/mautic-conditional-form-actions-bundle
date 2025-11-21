@@ -35,6 +35,10 @@
         const $formWrapper = mQuery('#mauticform_actionConditionsConfig_actionConditions_' + actionId);
         if ($formWrapper.length) {
             $action.find('div[data-action-condition-list]').html($formWrapper);
+        } else {
+            // When it's new action add a prototype
+            const $prototypeWrapper = createActionConditionsPrototype(actionId);
+            $action.find('div[data-action-condition-list]').html($prototypeWrapper);
         }
 
         setupAddConditionsButton(actionId, $action);
@@ -563,9 +567,15 @@
                     if (response.mauticContent === 'formAction' && response.success === 1) {
                         const actionId = response.actionId;
                         const $action = mQuery('div[data-cfa-action="' + actionId + '"]');
+                        const $templateSelect = mQuery('[data-onload-callback="onFormCfaConditionsBuilder"]')
+                            .find('select[data-cfa-available-conditions-list]');
 
-                        setupAddConditionsButton(actionId, $action);
-                        updateConditionsVisibility(actionId, $action);
+                        initializeSingleBuilder(actionId, $action, $templateSelect);
+
+                        $action.find('select[data-cfa-available-conditions-list]').chosen({
+                            width: '100%',
+                            allow_single_deselect: true
+                        });
                     }
                 } catch (e) {
                     console.log('Error processing form action response:', e);
@@ -613,6 +623,22 @@
         }
     };
 
+    const createActionConditionsPrototype = function(actionId) {
+        const template = `
+        <div id="mauticform_actionConditionsConfig_actionConditions_${actionId}">
+            <input type="hidden" 
+                   id="mauticform_actionConditionsConfig_actionConditions_${actionId}_actionId"
+                   name="mauticform[actionConditionsConfig][actionConditions][${actionId}][actionId]" 
+                   autocomplete="false" 
+                   value="${actionId}">
+            <div class="cfa-conditions-list" 
+                 id="mauticform_actionConditionsConfig_actionConditions_${actionId}_conditions"
+                 data-conditions-container="">
+            </div>
+        </div>
+    `;
+        return template.trim();
+    };
 
     // Public API
     Mautic.cfaConvertConditionInput = convertLeadFilterInput;

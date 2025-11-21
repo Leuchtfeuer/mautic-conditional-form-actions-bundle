@@ -24,15 +24,9 @@
     </div>
 
     <div class="cfa-action-condition-builder-wrapper" data-action-condition-builder-wrapper="{{ id }}">
-        {% if id starts with 'new' %}
-            <div class="alert alert-info">
-                {{ 'mautic.plugin.cfa.form.info.new_action_added'|trans }}
-            </div>
-        {% else %}
-            <div class="row">
-                <div class="col-md-4" data-cfa-available-conditions-list-container></div>
-            </div>
-            <div class="cfa-action-condition-builder-container" data-action-condition-list="{{ id }}"></div>
-        {% endif %}
+        <div class="row">
+            <div class="col-md-4" data-cfa-available-conditions-list-container></div>
+        </div>
+        <div class="cfa-action-condition-builder-container" data-action-condition-list="{{ id }}"></div>
     </div>
 </div>

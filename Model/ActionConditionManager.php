@@ -25,14 +25,6 @@ class ActionConditionManager
     }
 
     /**
-     * @return array<int, FormActionCondition>
-     */
-    public function getFormActionConditionsByFormId(int $formId): array
-    {
-        return $this->repository->findByFormId($formId);
-    }
-
-    /**
      * Save action conditions for a form.
      *
      * @param array<string, array<string, mixed>> $actionConditionsData
@@ -45,29 +37,40 @@ class ActionConditionManager
         foreach ($actionConditionsData as $data) {
             $actionId = $data['actionId'] ?? null;
 
-            // Skip temporary IDs - we'll handle those separately
-            if (!$actionId || str_starts_with((string) $actionId, 'temp_')) {
+            if (!$actionId) {
                 continue;
             }
 
-            $action = $this->findActionById($form, (int) $actionId);
+            // Try to resolve the Action object. This handles both Integer IDs and 'new{HASH}' IDs.
+            $action = $this->findActionById($form, $actionId);
+
+            // If action passed in request does not exist on the form object, skip it.
             if (!$action) {
                 continue;
             }
 
-            $processedActionIds[] = (int) $actionId;
+            // IMPORTANT: Now that we have the Action object, we get its REAL ID (database ID).
+            // For 'new{HASH}' actions, the action object is found via the hash key,
+            // but getId() returns the newly persisted integer because the form was just saved.
+            $realActionId = $action->getId();
+
+            if (!$realActionId) {
+                continue;
+            }
+
+            $processedActionIds[] = $realActionId;
             $conditions           = $data['conditions'] ?? null;
 
             if ($conditions) {
-                // Create or update condition
-                $condition = $existingConditions[(int) $actionId] ?? new FormActionCondition();
+                // Create or update condition. key logic by realActionId
+                $condition = $existingConditions[$realActionId] ?? new FormActionCondition();
                 $condition->setAction($action);
                 $condition->setConditions($conditions);
 
                 $this->entityManager->persist($condition);
-            } elseif (isset($existingConditions[(int) $actionId])) {
+            } elseif (isset($existingConditions[$realActionId])) {
                 // Remove condition if conditions are empty
-                $this->entityManager->remove($existingConditions[(int) $actionId]);
+                $this->entityManager->remove($existingConditions[$realActionId]);
             }
         }
 
@@ -81,10 +84,22 @@ class ActionConditionManager
         $this->entityManager->flush();
     }
 
-    private function findActionById(Form $form, int $actionId): ?Action
+    /**
+     * Finds an action by ID or by the temporary 'new{HASH}' key used in the collection.
+     */
+    private function findActionById(Form $form, int|string $actionId): ?Action
     {
-        foreach ($form->getActions() as $action) {
-            if ($action->getId() === $actionId) {
+        $actions = $form->getActions();
+
+        // Direct lookup using the collection key.
+        // FormModel keys the collection with the provided ID ('123' or 'new{hash}')
+        if ($actions->containsKey($actionId)) {
+            return $actions->get($actionId);
+        }
+
+        // Fallback: Iterate and match numeric ID.
+        foreach ($actions as $action) {
+            if ($action->getId() == $actionId) {
                 return $action;
             }
         }
