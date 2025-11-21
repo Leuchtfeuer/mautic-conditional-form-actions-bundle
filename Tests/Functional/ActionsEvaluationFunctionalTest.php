@@ -6,10 +6,14 @@ namespace MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Tests\Functional;
 
 use Mautic\CoreBundle\Test\MauticMysqlTestCase;
 use Mautic\FormBundle\Entity\Action;
+use Mautic\FormBundle\Entity\Submission;
+use Mautic\FormBundle\Entity\SubmissionRepository;
 use Mautic\LeadBundle\Entity\Lead;
 use Mautic\LeadBundle\Entity\LeadList;
 use Mautic\LeadBundle\Segment\OperatorOptions;
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Entity\FormActionCondition;
+use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Entity\FormActionExecutionLog;
+use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Entity\FormActionExecutionLogRepository;
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Tests\Fixtures\FunctionalFixtureHelper;
 use PHPUnit\Framework\Assert;
 use Symfony\Component\DomCrawler\Field\ChoiceFormField;
@@ -84,13 +88,14 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
             ],
         ]);
 
+        $targetAction = $form->getActions()->first();
+
         // 5. Attach Conditions to the Action
         if (null !== $conditions) {
-            $this->createFormActionCondition($form->getActions()->first(), $conditions);
+            $this->createFormActionCondition($targetAction, $conditions);
         }
 
         // 6. Execution: Submit the Form
-        //    We map simple array keys to 'mauticform[key]' structure used by Symfony crawler
         $crawler     = $this->client->request(Request::METHOD_GET, "/form/{$form->getId()}");
         $formCrawler = $crawler->filter('form[id=mauticform_conditionstestform]');
         $formElement = $formCrawler->form();
@@ -98,25 +103,19 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
         $mauticFormValues = [];
         foreach ($formData as $key => $value) {
             if (is_array($value)) {
-                // Check if this is a multiselect field first
                 $multiselectFieldName = "mauticform[{$key}]";
                 if ($formElement->has($multiselectFieldName)) {
                     /** @var ChoiceFormField $field */
                     $field = $formElement->get($multiselectFieldName);
-                    // Check if field is an object and has setValue method
                     if (is_object($field) && method_exists($field, 'setValue')) {
-                        // For multiselect fields, we need to set the array of values directly
                         $field->setValue($value);
                     } else {
-                        // Fallback to checkbox handling if not a valid multiselect field
                         $this->handleCheckboxValues($formElement, $key, $value);
                     }
                 } else {
-                    // Handle checkbox arrays - need to find checkboxes by their value, not by array index
                     $this->handleCheckboxValues($formElement, $key, $value);
                 }
             } else {
-                // Handle regular form fields
                 $fieldName = "mauticform[{$key}]";
                 if ($formElement->has($fieldName)) {
                     $formElement->get($fieldName)->setValue($value);
@@ -129,7 +128,7 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
         Assert::assertTrue($this->client->getResponse()->isOk());
 
         // 7. Assertion
-        $this->em->clear(); // Clear Doctrine identity map to fetch fresh data
+        $this->em->clear(); // Clear Doctrine identity map
 
         /** @var Lead $updatedContact */
         $updatedContact = $this->em->getRepository(Lead::class)->findOneBy(['email' => $contact->getEmail()]);
@@ -142,11 +141,50 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
         } else {
             Assert::assertFalse($isInSegment, 'The Action should have been SKIPPED, but the contact IS in the segment.');
         }
+
+        // 8. Check Logs
+        $this->checkLog($form->getId(), $targetAction->getId(), $shouldExecute);
     }
 
     /**
-     * Sets a value on an entity dynamically.
+     * Verifies that a log entry was created for the specific action execution.
      */
+    private function checkLog(int $formId, int $actionId, bool $expectedExecutionStatus): void
+    {
+        /** @var SubmissionRepository $submissionRepo */
+        $submissionRepo = $this->em->getRepository(Submission::class);
+
+        // Find the most recent submission for this form
+        $submission = $submissionRepo->findOneBy(['form' => $formId], ['dateSubmitted' => 'DESC']);
+        Assert::assertNotNull($submission, 'No submission found for log verification.');
+
+        /** @var FormActionExecutionLogRepository $logRepo */
+        $logRepo = $this->em->getRepository(FormActionExecutionLog::class);
+
+        /** @var FormActionExecutionLog|null $log */
+        $log = $logRepo->findOneBy([
+            'submission' => $submission,
+            'action'     => $actionId
+        ]);
+
+        Assert::assertNotNull($log, 'No execution log found for this action/submission combination.');
+
+        Assert::assertEquals(
+            $expectedExecutionStatus,
+            $log->isExecuted(),
+            sprintf('Log status mismatch. Expected isExecuted: %s, but got: %s',
+                $expectedExecutionStatus ? 'true' : 'false',
+                $log->isExecuted() ? 'true' : 'false'
+            )
+        );
+
+        $expectedDetails = $expectedExecutionStatus
+            ? FormActionExecutionLog::DETAILS_CONDITIONS_MET
+            : FormActionExecutionLog::DETAILS_CONDITIONS_NOT_MET;
+
+        Assert::assertEquals($expectedDetails, $log->getLogDetails(), 'Log detail message is incorrect.');
+    }
+
     private function setEntityValue(object $entity, string $field, mixed $value): void
     {
         $method = 'set'.ucfirst($field);
