@@ -2,6 +2,7 @@
 
 namespace MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Form\Extension;
 
+use Mautic\FormBundle\Entity\Action;
 use Mautic\FormBundle\Form\Type\FormType;
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Form\Type\FormActionConditionsConfigType;
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Integration\Config;
@@ -13,6 +14,7 @@ use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormRenderer;
 use Symfony\Component\Form\FormView;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 
 class FormTypeExtension extends AbstractTypeExtension
@@ -20,7 +22,8 @@ class FormTypeExtension extends AbstractTypeExtension
     public function __construct(
         private Config $pluginConfig,
         private ActionConditionManager $actionConditionManager,
-        private Environment $twig
+        private Environment $twig,
+        private RequestStack $requestStack,
     ) {
     }
 
@@ -35,16 +38,20 @@ class FormTypeExtension extends AbstractTypeExtension
 
     public function onPreSetData(FormEvent $event): void
     {
-        $form   = $event->getForm();
-        $entity = $event->getData();
+        if (!$this->pluginConfig->isPublished()) {
+            return;
+        }
+
+        $symfonyForm   = $event->getForm();
+        $mauticForm    = $event->getData();
 
         $actionConditionsData = [];
 
-        if ($entity->getId()) {
+        if ($mauticForm->getId()) {
             // Existing form - load conditions for all actions
-            $actionConditions = $this->actionConditionManager->getFormActionConditions($entity);
+            $actionConditions = $this->actionConditionManager->getFormActionConditions($mauticForm);
 
-            foreach ($entity->getActions() as $action) {
+            foreach ($mauticForm->getActions() as $action) {
                 $actionId  = $action->getId();
                 $condition = $actionConditions[$actionId] ?? null;
 
@@ -53,14 +60,32 @@ class FormTypeExtension extends AbstractTypeExtension
                     'conditions' => $condition?->getConditions() ?? [],
                 ];
             }
+        } elseif ($this->isCloneRequest()) {
+            $mainRequest  = $this->requestStack->getMainRequest();
+            $sourceFormId = (int) $mainRequest?->attributes->get('objectId');
+
+            if ($sourceFormId) {
+                $actionConditions = $this->actionConditionManager->getFormActionConditionsByFormId($sourceFormId);
+
+                foreach ($mauticForm->getActions() as $index => $action) {
+                    $tempId    = 'new'.hash('sha1', uniqid(mt_rand()));
+                    $condition = $actionConditions[$index] ?? null;
+
+                    $this->forceActionId($action, $tempId);
+                    $actionConditionsData[$tempId] = [
+                        'actionId'   => $tempId,
+                        'conditions' => $condition?->getConditions() ?? [],
+                    ];
+                }
+            }
         }
 
-        $form->add('actionConditionsConfig', FormActionConditionsConfigType::class, [
+        $symfonyForm->add('actionConditionsConfig', FormActionConditionsConfigType::class, [
             'data' => [
                 'actionConditions' => $actionConditionsData,
             ],
             'mapped'      => false,
-            'mautic_form' => $entity,
+            'mautic_form' => $mauticForm,
             'label'       => false,
         ]);
     }
@@ -77,6 +102,28 @@ class FormTypeExtension extends AbstractTypeExtension
                     $view['actionConditionsConfig'],
                     '@LeuchtfeuerConditionalFormActions/FormTheme/conditional_action_conditions.html.twig'
                 );
+        }
+    }
+
+    private function isCloneRequest(): bool
+    {
+        $mainRequest = $this->requestStack->getMainRequest();
+
+        return $mainRequest && 'clone' === $mainRequest->attributes->get('objectAction');
+    }
+
+    /**
+     * Mautic Action Entities usually don't have a public setId().
+     * We use Reflection to modify the private property on the clone instance.
+     */
+    private function forceActionId(Action $action, string $id): void
+    {
+        try {
+            $reflection = new \ReflectionClass($action);
+            $property   = $reflection->getProperty('id');
+            $property->setAccessible(true);
+            $property->setValue($action, $id);
+        } catch (\ReflectionException) {
         }
     }
 

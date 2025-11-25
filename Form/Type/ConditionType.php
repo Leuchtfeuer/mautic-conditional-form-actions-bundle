@@ -62,12 +62,15 @@ class ConditionType extends AbstractType
                 $operator = array_key_first($operators);
             }
 
+            // If field not found (e.g., clone scenario), disable validation
+            $disableValidation = null === $field && $fieldAlias;
+
             $form->add(
                 'operator',
                 ChoiceType::class,
                 [
                     'label'   => false,
-                    'choices' => $operators,
+                    'choices' => $disableValidation ? [$operator => $operator] : $operators,
                     'attr'    => [
                         'class'    => 'form-control not-chosen',
                         'onchange' => 'Mautic.cfaConvertConditionInput(this)',
@@ -79,7 +82,8 @@ class ConditionType extends AbstractType
                 'properties',
                 FilterPropertiesType::class,
                 [
-                    'label' => false,
+                    'label'              => false,
+                    'allow_extra_fields' => true,
                 ]
             );
 

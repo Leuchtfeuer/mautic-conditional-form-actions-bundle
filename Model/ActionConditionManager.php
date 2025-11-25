@@ -25,6 +25,14 @@ class ActionConditionManager
     }
 
     /**
+     * @return array<int, FormActionCondition>
+     */
+    public function getFormActionConditionsByFormId(int $formId): array
+    {
+        return $this->repository->findByFormId($formId);
+    }
+
+    /**
      * Save action conditions for a form.
      *
      * @param array<string, array<string, mixed>> $actionConditionsData
