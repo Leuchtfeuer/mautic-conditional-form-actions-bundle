@@ -68,7 +68,7 @@ class FormTypeExtension extends AbstractTypeExtension
                 $actionConditions = $this->actionConditionManager->getFormActionConditionsByFormId($sourceFormId);
 
                 foreach ($mauticForm->getActions() as $index => $action) {
-                    $tempId    = 'new'.hash('sha1', uniqid(mt_rand()));
+                    $tempId    = 'new'.hash('sha1', uniqid((string) mt_rand()));
                     $condition = $actionConditions[$index] ?? null;
 
                     $this->forceActionId($action, $tempId);
