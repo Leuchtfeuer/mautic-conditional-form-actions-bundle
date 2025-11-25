@@ -4,7 +4,11 @@
         formFieldChangesListener();
         formNewActionListener();
         formDeleteActionListener();
-        initSortableForActions();
+
+        setTimeout(function () {
+            // execute after `formOnLoad` which initialized original sortable
+            initSortableForActions();
+        }, 0);
     };
 
     const initializeBuilders = function() {
