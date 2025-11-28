@@ -9,6 +9,9 @@
             // execute after `formOnLoad` which initialized original sortable
             initSortableForActions();
         }, 0);
+
+        // override this function to apply custom behavior
+        Mautic.formActionOnLoad = formActionOnLoad;
     };
 
     const initializeBuilders = function() {
@@ -643,6 +646,70 @@
     `;
         return template.trim();
     };
+
+    const formActionOnLoad = function(container, response) {
+        if (!response.actionHtml) return;
+
+        const { actionHtml, actionId } = response;
+        const actionSelector = `#mauticform_action_${actionId}`;
+        const $action = mQuery(actionSelector);
+        const isNewField = $action.length === 0;
+        const $newHtml = mQuery(actionHtml);
+
+        if (isNewField) {
+            updateActionHtml($action, actionHtml, isNewField);
+            initializeActionFunctionality(actionSelector);
+            updateUIAfterAction(isNewField);
+        } else {
+            const title = $newHtml.find('.action-label').text();
+            $action.find('.action-label').text(title);
+        }
+    };
+
+    const updateActionHtml = function($action, actionHtml, isNewField) {
+        if (isNewField) {
+            mQuery('#mauticforms_actions .drop-here').append(actionHtml);
+        } else {
+            $action.replaceWith(actionHtml);
+        }
+    }
+
+    const initializeActionFunctionality = function(actionSelector) {
+        const $action = mQuery(actionSelector);
+
+        $action.find("[data-toggle='ajax']").click(function(event) {
+            event.preventDefault();
+            return Mautic.ajaxifyLink(this, event);
+        });
+
+        $action.find("*[data-toggle='tooltip']").tooltip({ html: true });
+
+        $action.find("[data-toggle='ajaxmodal']").on('click.ajaxmodal', function(event) {
+            event.preventDefault();
+            Mautic.ajaxifyModal(this, event);
+        });
+
+        const $verifiedActions = mQuery('#mauticforms_actions');
+        $verifiedActions.find('.mauticform-row').off(".mauticform");
+        $verifiedActions.find('.mauticform-row').on('dblclick.mauticformactions', function(event) {
+            event.preventDefault();
+            mQuery(this).find('.btn-edit').first().click();
+        });
+    }
+
+    function updateUIAfterAction(isNewField) {
+        const $actionsPanel = mQuery('#actions-panel');
+        if (!$actionsPanel.hasClass('in')) {
+            mQuery('a[href="#actions-panel"]').trigger('click');
+        }
+
+        if (isNewField) {
+            const $wrapper = mQuery('.bundle-main-inner-wrapper');
+            $wrapper.scrollTop($wrapper.height());
+        }
+
+        mQuery('#form-action-placeholder').remove();
+    }
 
     // Public API
     Mautic.cfaConvertConditionInput = convertLeadFilterInput;
