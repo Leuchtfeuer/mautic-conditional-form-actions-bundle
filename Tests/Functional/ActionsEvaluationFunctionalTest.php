@@ -66,9 +66,6 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
 
         if (!empty($companyData)) {
             $company = $this->fixtureHelper->createCompany($companyData['companyname'] ?? 'Test Corp');
-            foreach ($companyData as $field => $value) {
-                $this->setEntityValue($company, $field, $value);
-            }
             $this->em->persist($company);
             $this->fixtureHelper->addContactToCompany($contact, $company);
         }
@@ -190,6 +187,8 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
         $method = 'set'.ucfirst($field);
         if (method_exists($entity, $method)) {
             $entity->$method($value);
+        } else {
+            throw new \BadMethodCallException("Method '{$method}' does not exist on entity ".get_class($entity));
         }
     }
 

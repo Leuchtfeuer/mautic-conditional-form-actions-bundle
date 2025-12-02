@@ -51,7 +51,7 @@ class FormBuilderSubscriber implements EventSubscriberInterface
         $request    = $this->requestStack->getCurrentRequest();
         $mauticForm = $request->request->all()['mauticform'] ?? null;
 
-        if (!isset($mauticForm) || !is_array($mauticForm)) {
+        if (!is_array($mauticForm)) {
             return;
         }
 

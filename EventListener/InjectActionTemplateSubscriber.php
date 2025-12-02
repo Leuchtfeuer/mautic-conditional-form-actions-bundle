@@ -42,16 +42,13 @@ class InjectActionTemplateSubscriber implements EventSubscriberInterface
             return; // property missing or changed in future versions
         }
 
-        $prop = $rc->getProperty('actions');
-        $prop->setAccessible(true);
-
+        $prop    = $rc->getProperty('actions');
         $actions = $prop->getValue($event);
-        foreach ($actions as &$action) {
+        foreach ($actions as $key => $action) {
             if (empty($action['template'])) {
-                $action['template'] = self::ACTION_TEMPLATE;
+                $actions[$key]['template'] = self::ACTION_TEMPLATE;
             }
         }
-        unset($action);
 
         $prop->setValue($event, $actions);
     }

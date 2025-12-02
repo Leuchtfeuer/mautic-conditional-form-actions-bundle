@@ -64,7 +64,7 @@ class FormTypeExtension extends AbstractTypeExtension
             $mainRequest  = $this->requestStack->getMainRequest();
             $sourceFormId = (int) $mainRequest?->attributes->get('objectId');
 
-            if ($sourceFormId) {
+            if ($sourceFormId > 0) {
                 $actionConditions = $this->actionConditionManager->getFormActionConditionsByFormId($sourceFormId);
 
                 foreach ($mauticForm->getActions() as $index => $action) {
@@ -121,7 +121,6 @@ class FormTypeExtension extends AbstractTypeExtension
         try {
             $reflection = new \ReflectionClass($action);
             $property   = $reflection->getProperty('id');
-            $property->setAccessible(true);
             $property->setValue($action, $id);
         } catch (\ReflectionException) {
         }
