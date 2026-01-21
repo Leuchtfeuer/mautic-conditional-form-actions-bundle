@@ -132,7 +132,7 @@ class ConditionsEvaluator
             case OperatorOptions::NOT_EMPTY:
                 return !empty($actualValue);
 
-            // @phpstan-ignore-next-line operator deprecated in M7, replacement is not available in M6
+                // @phpstan-ignore-next-line operator deprecated in M7, replacement is not available in M6
             case OperatorOptions::IN:
                 if (!is_array($filterValue)) {
                     return false;
@@ -147,7 +147,7 @@ class ConditionsEvaluator
                 // Return true if any of the actual values are in the filter list
                 return !empty(array_intersect($actualValuesLower, $filterValuesLower));
 
-            // @phpstan-ignore-next-line operator deprecated in M7, replacement is not available in M6
+                // @phpstan-ignore-next-line operator deprecated in M7, replacement is not available in M6
             case OperatorOptions::NOT_IN:
                 if (!is_array($filterValue)) {
                     return true;
