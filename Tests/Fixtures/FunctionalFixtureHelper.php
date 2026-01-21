@@ -59,7 +59,7 @@ final class FunctionalFixtureHelper
         return $company;
     }
 
-    public function addContactToCompany(Lead $lead, Company $company, \DateTime $dateAdded = null, bool $isPrimary = true): CompanyLead
+    public function addContactToCompany(Lead $lead, Company $company, ?\DateTime $dateAdded = null, bool $isPrimary = true): CompanyLead
     {
         $companyLead = new CompanyLead();
         $companyLead->setCompany($company);
