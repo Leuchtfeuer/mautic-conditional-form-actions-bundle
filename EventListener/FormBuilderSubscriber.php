@@ -17,7 +17,7 @@ class FormBuilderSubscriber implements EventSubscriberInterface
         private ActionConditionManager $actionConditionManager,
         private RequestStack $requestStack,
         private Config $pluginConfig,
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
     ) {
     }
 

@@ -19,7 +19,7 @@ final class FunctionalFixtureHelper
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private KernelBrowser $client
+        private KernelBrowser $client,
     ) {
     }
 

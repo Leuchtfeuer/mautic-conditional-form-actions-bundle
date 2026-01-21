@@ -12,7 +12,7 @@ class ActionConditionManager
 {
     public function __construct(
         private EntityManagerInterface $entityManager,
-        private FormActionConditionRepository $repository
+        private FormActionConditionRepository $repository,
     ) {
     }
 

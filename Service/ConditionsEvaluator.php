@@ -16,7 +16,7 @@ class ConditionsEvaluator
 {
     public function __construct(
         private FormActionConditionRepository $formActionConditionRepository,
-        private CompanyLeadRepository $companyLeadRepository
+        private CompanyLeadRepository $companyLeadRepository,
     ) {
     }
 

@@ -6,7 +6,6 @@ namespace MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\EventListener;
 
 use Mautic\PluginBundle\Bundle\PluginDatabase;
 use Mautic\PluginBundle\Event\PluginInstallEvent;
-use Mautic\PluginBundle\Event\PluginUpdateEvent;
 use Mautic\PluginBundle\PluginEvents;
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Integration\LeuchtfeuerConditionalFormActionsIntegration;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -29,7 +28,6 @@ class PluginInstallSubscriber implements EventSubscriberInterface
         // Prevent core PluginSubscriber from trying to create schema
         $event->stopPropagation();
     }
-
 
     /**
      * @return array<string, string|array{0: string, 1: int}|list<array{0: string, 1?: int}>>

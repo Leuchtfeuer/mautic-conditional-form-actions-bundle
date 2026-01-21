@@ -48,7 +48,7 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
         array $leadData,
         array $companyData,
         array $formData,
-        bool $shouldExecute
+        bool $shouldExecute,
     ): void {
         // 1. Preparation: Create Segment (Target of the action)
         $segment = $this->fixtureHelper->createSegment('Target Segment', 'target-segment');
