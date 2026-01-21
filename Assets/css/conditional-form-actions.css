@@ -129,3 +129,18 @@
 .add-conditions-button-wrapper {
     margin-bottom: -10px;
 }
+
+[data-cfa-available-conditions-list-container] li.active-result::before {
+    font-family: 'remixicon';
+    padding-right: 3px;
+}
+
+.available-action-skip-option-type--lead::before {
+    content: "\f25b";
+}
+.available-action-skip-option-type--company::before {
+    content: "\eb09";
+}
+.available-action-skip-option-type--form::before {
+    content: "\f1c7";
+}
