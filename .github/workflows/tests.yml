@@ -117,6 +117,7 @@ jobs:
         run: composer phpstan -- ${{ env.PLUGIN_DIR }}
 
       - name: Rector
+        if: ${{ matrix.mautic-versions != '7.0' }}
         run: composer rector -- --dry-run --no-progress-bar ${{ env.PLUGIN_DIR }}
 
       - name: Twig Lint
