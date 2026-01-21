@@ -420,9 +420,9 @@
         let bodyOverflow = {};
 
         $container.sortable({
-            items: '.cfa-action-panel',
+            items: '.cfa-action-wrapper',
             handle: '.mauticform-row',
-            cancel: '.action-condition-builder-wrapper, .add-conditions-button-wrapper',
+            cancel: '.cfa-action-condition-builder-wrapper, .cfa-add-conditions-button-wrapper',
             distance: 10,
             helper: function(e, ui) {
                 ui.children().each(function() {
@@ -466,7 +466,7 @@
                     mQuery.ajax({
                         type: "POST",
                         url: mauticAjaxUrl + "?action=form:reorderActions",
-                        data: mQuery('#mauticforms_actions').sortable("serialize") + "&formId=" + mQuery('#mauticform_sessionId').val()
+                        data: mQuery('#mauticforms_actions').sortable("serialize", {attribute: 'data-sortable-id'}) + "&formId=" + mQuery('#mauticform_sessionId').val()
                     });
                 }
             }

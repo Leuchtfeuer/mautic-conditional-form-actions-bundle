@@ -1,4 +1,5 @@
-<div class="cfa-action-panel {% if action.settings.allowCampaignForm is not defined %}action-standalone-only{% endif %}"
+<div class="cfa-action-wrapper {% if action.settings.allowCampaignForm is not defined %}action-standalone-only{% endif %}"
+     data-sortable-id="mauticform_action_{{ id }}"
      data-cfa-action="{{ id }}"
 >
     {# Always use cfa-original-action-content, fallback to base template if no custom template defined #}
@@ -12,17 +13,19 @@
         }) }}
     </div>
 
-    {# CFA condition builder UI - always shown #}
-    <div class="cfa-add-conditions-button-wrapper" data-add-conditions-button-wrapper="{{ id }}">
-        <a href="#" data-add-conditions-button="{{ id }}">
-            <i class="ri-add-line"></i> {{ 'mautic.plugin.cfa.form.button.add_conditions'|trans }}
-        </a>
-    </div>
-
-    <div class="cfa-action-condition-builder-wrapper" data-action-condition-builder-wrapper="{{ id }}">
-        <div class="row">
-            <div class="col-md-4" data-cfa-available-conditions-list-container></div>
+    {# CFA condition builder UI - styled as panel footer extension #}
+    <div class="cfa-conditions-footer" data-cfa-conditions-footer="{{ id }}">
+        <div class="cfa-add-conditions-button-wrapper" data-add-conditions-button-wrapper="{{ id }}">
+            <a href="#" data-add-conditions-button="{{ id }}">
+                <i class="ri-add-line"></i> {{ 'mautic.plugin.cfa.form.button.add_conditions'|trans }}
+            </a>
         </div>
-        <div class="cfa-action-condition-builder-container" data-action-condition-list="{{ id }}"></div>
+
+        <div class="cfa-action-condition-builder-wrapper" data-action-condition-builder-wrapper="{{ id }}">
+            <div class="row">
+                <div class="col-md-4" data-cfa-available-conditions-list-container></div>
+            </div>
+            <div class="cfa-action-condition-builder-container" data-action-condition-list="{{ id }}"></div>
+        </div>
     </div>
 </div>
