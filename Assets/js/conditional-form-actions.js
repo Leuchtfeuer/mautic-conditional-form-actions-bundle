@@ -421,7 +421,7 @@
 
         $container.sortable({
             items: '.cfa-action-panel',
-            handle: '.cfa-action-header',
+            handle: '.mauticform-row',
             cancel: '.action-condition-builder-wrapper, .add-conditions-button-wrapper',
             distance: 10,
             helper: function(e, ui) {
