@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     'name'        => 'ConditionalFormActions by Leuchtfeuer',
     'description' => 'Enables conditional form submit actions',
-    'version'     => '0.0.3',
+    'version'     => '1.0.1',
     'author'      => 'Leuchtfeuer Digital Marketing GmbH',
     'routes'      => [
         'main' => [
