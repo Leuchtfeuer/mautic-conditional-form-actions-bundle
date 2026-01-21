@@ -328,6 +328,7 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
                     'glue'       => 'and',
                     'field'      => 'colors', // Select box in complex form
                     'object'     => 'form',
+                    // @phpstan-ignore-next-line operator deprecated in M7, replacement is not available in M6
                     'operator'   => OperatorOptions::IN,
                     'properties' => ['filter' => ['red', 'blue']],
                 ],

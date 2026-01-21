@@ -9,7 +9,8 @@
 }
 
 /* Remove bottom border-radius from panel when CFA footer is present */
-.cfa-action-wrapper .cfa-original-action-content .panel {
+.cfa-action-wrapper .cfa-original-action-content .panel,
+.cfa-action-wrapper .cfa-original-action-content .panel-footer  {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
@@ -127,8 +128,4 @@
 
 .add-conditions-button-wrapper {
     margin-bottom: -10px;
-}
-
-.cfa-original-action-content .panel-footer {
-    border-radius: 0;
 }
