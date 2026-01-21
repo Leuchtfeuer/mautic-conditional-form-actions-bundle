@@ -1,22 +1,18 @@
 <div class="mauticform-row cfa-action-panel {% if action.settings.allowCampaignForm is not defined %}action-standalone-only{% endif %}"
-     id="mauticform_action_{{ id }}"
      data-cfa-action="{{ id }}"
 >
-    <div class="cfa-action-header">
-        {% if inForm is defined %}
-            {{ include('@MauticForm/Builder/_actions.html.twig', {
-                'id': id,
-                'route': 'mautic_formaction_action',
-                'actionType': 'action',
-                'formId': formId,
-            }) }}
-        {% endif %}
-        <a data-toggle="ajaxmodal" data-target="#formComponentModal" href="{{ path('mautic_formaction_action', {'objectAction': 'edit', 'objectId': id, 'formId': formId}) }}"><span class="action-label">{{ action.name }}</span></a>
-        {% if action.description is not empty %}
-            <span class="action-descr">{{ action.description|purify }}</span>
-        {% endif %}
+    {# Always use cfa-original-action-content, fallback to base template if no custom template defined #}
+    {% set actionTemplate = action.settings.originalTemplate|default('@MauticForm/Action/base_form_action.html.twig') %}
+    <div class="cfa-original-action-content">
+        {{ include(actionTemplate, {
+            'action': action,
+            'inForm': inForm,
+            'id': id,
+            'formId': formId,
+        }) }}
     </div>
 
+    {# CFA condition builder UI - always shown #}
     <div class="cfa-add-conditions-button-wrapper" data-add-conditions-button-wrapper="{{ id }}">
         <a href="#" data-add-conditions-button="{{ id }}">
             <i class="ri-add-line"></i> {{ 'mautic.plugin.cfa.form.button.add_conditions'|trans }}

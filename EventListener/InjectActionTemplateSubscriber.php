@@ -45,9 +45,12 @@ class InjectActionTemplateSubscriber implements EventSubscriberInterface
         $prop    = $rc->getProperty('actions');
         $actions = $prop->getValue($event);
         foreach ($actions as $key => $action) {
-            if (empty($action['template'])) {
-                $actions[$key]['template'] = self::ACTION_TEMPLATE;
+            // Store original template before overwriting so we can render it inside our generic template
+            if (!empty($action['template'])) {
+                $actions[$key]['originalTemplate'] = $action['template'];
             }
+            // Always set CFA template to wrap all actions with condition builder UI
+            $actions[$key]['template'] = self::ACTION_TEMPLATE;
         }
 
         $prop->setValue($event, $actions);
