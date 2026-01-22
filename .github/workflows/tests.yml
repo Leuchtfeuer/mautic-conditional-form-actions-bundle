@@ -18,15 +18,25 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: ['8.1', '8.2', '8.3']
-        db-types: ['mysql','mariadb']
-        mautic-versions: ['5.2.7']
+        include:
+          - php-versions: '8.1'
+            mautic-versions: '6.0'
+          - php-versions: '8.2'
+            mautic-versions: '6.0'
+          - php-versions: '8.3'
+            mautic-versions: '6.0'
+          - php-versions: '8.2'
+            mautic-versions: '7.0'
+          - php-versions: '8.3'
+            mautic-versions: '7.0'
+          - php-versions: '8.4'
+            mautic-versions: '7.0'
 
-    name: Tests on PHP ${{ matrix.php-versions }}, ${{ matrix.db-types }}, Mautic ${{ matrix.mautic-versions }}
+    name: Tests on PHP ${{ matrix.php-versions }}, MariaDB, Mautic ${{ matrix.mautic-versions }}
 
     services:
       database:
-        image: ${{ matrix.db-types == 'mysql' && 'mysql:5.7' || 'mariadb:10.3' }}
+        image: mariadb:10.11
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_DATABASE: mautictest
@@ -34,7 +44,7 @@ jobs:
           - 3306
         options: >-
           --shm-size=2gb
-          --name=${{ matrix.db-types }}
+          --name=mariadb
           --tmpfs=/var/lib/mysql
           --health-cmd="mysqladmin ping"
           --health-interval=10s
@@ -107,6 +117,7 @@ jobs:
         run: composer phpstan -- ${{ env.PLUGIN_DIR }}
 
       - name: Rector
+        if: ${{ matrix.mautic-versions != '7.0' }}
         run: composer rector -- --dry-run --no-progress-bar ${{ env.PLUGIN_DIR }}
 
       - name: Twig Lint

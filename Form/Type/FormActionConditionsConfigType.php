@@ -14,7 +14,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class FormActionConditionsConfigType extends AbstractType
 {
     public function __construct(
-        private AvailableOptionsProvider $availableOptionsProvider
+        private AvailableOptionsProvider $availableOptionsProvider,
     ) {
     }
 

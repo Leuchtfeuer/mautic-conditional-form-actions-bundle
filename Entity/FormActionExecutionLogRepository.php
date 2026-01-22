@@ -15,7 +15,7 @@ class FormActionExecutionLogRepository extends CommonRepository
         Submission $submission,
         Action $action,
         bool $isExecuted,
-        string $details = null
+        ?string $details = null,
     ): void {
         $log = new FormActionExecutionLog();
         $log->setSubmission($submission);

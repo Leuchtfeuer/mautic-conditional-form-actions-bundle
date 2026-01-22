@@ -19,7 +19,7 @@ final class FunctionalFixtureHelper
 {
     public function __construct(
         private EntityManagerInterface $em,
-        private KernelBrowser $client
+        private KernelBrowser $client,
     ) {
     }
 
@@ -59,7 +59,7 @@ final class FunctionalFixtureHelper
         return $company;
     }
 
-    public function addContactToCompany(Lead $lead, Company $company, \DateTime $dateAdded = null, bool $isPrimary = true): CompanyLead
+    public function addContactToCompany(Lead $lead, Company $company, ?\DateTime $dateAdded = null, bool $isPrimary = true): CompanyLead
     {
         $companyLead = new CompanyLead();
         $companyLead->setCompany($company);

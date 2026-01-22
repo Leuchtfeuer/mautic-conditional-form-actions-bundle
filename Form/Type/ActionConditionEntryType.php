@@ -18,7 +18,7 @@ class ActionConditionEntryType extends AbstractType
 {
     public function __construct(
         private TranslatorInterface $translator,
-        private AvailableOptionsProvider $availableOptionsProvider
+        private AvailableOptionsProvider $availableOptionsProvider,
     ) {
     }
 

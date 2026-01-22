@@ -48,7 +48,7 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
         array $leadData,
         array $companyData,
         array $formData,
-        bool $shouldExecute
+        bool $shouldExecute,
     ): void {
         // 1. Preparation: Create Segment (Target of the action)
         $segment = $this->fixtureHelper->createSegment('Target Segment', 'target-segment');
@@ -328,6 +328,7 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
                     'glue'       => 'and',
                     'field'      => 'colors', // Select box in complex form
                     'object'     => 'form',
+                    // @phpstan-ignore-next-line operator deprecated in M7, replacement is not available in M6
                     'operator'   => OperatorOptions::IN,
                     'properties' => ['filter' => ['red', 'blue']],
                 ],

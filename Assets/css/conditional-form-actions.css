@@ -1,13 +1,27 @@
-.cfa-action-panel {
-    display: block;
+/* CFA Action Wrapper - no border, let inner panel provide structure */
+.cfa-action-wrapper {
+    margin-bottom: 19px;
 }
 
-.cfa-action-header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    position: relative;
-    padding: 10px 0;
+/* Remove margin from inner panel since wrapper handles spacing */
+.cfa-original-action-content .panel {
+    margin-bottom: 0;
+}
+
+/* Remove bottom border-radius from panel when CFA footer is present */
+.cfa-action-wrapper .cfa-original-action-content .panel,
+.cfa-action-wrapper .cfa-original-action-content .panel-footer  {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* CFA conditions footer - styled to match panel */
+.cfa-conditions-footer {
+    border: 1px solid var(--layer);
+    border-top: none;
+    background-color: var(--background);
+    border-radius: 0 0 15.6px 15.6px;
+    padding: 10px 15px;
 }
 
 .cfa-add-conditions-button-wrapper {
@@ -18,16 +32,17 @@
     margin-top: 10px;
 }
 .cfa-action-condition-builder-container {
-    margin-top: 20px;
+    margin-left: 20px;
+    margin-top: 10px;
 }
 
-.cfa-action-panel,
+/* Condition panel styles */
 .cfa-condition-panel {
     border: 1px solid var(--layer);
     background-color: var(--background);
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
-    border-radius: 15.6px;
-    margin-bottom: 19px;
+    border-radius: var(--border-radius-lg, 12px);
+    margin-bottom: 8px;
 }
 
 /* Condition panel specific styles */
@@ -113,4 +128,19 @@
 
 .add-conditions-button-wrapper {
     margin-bottom: -10px;
+}
+
+[data-cfa-available-conditions-list-container] li.active-result::before {
+    font-family: 'remixicon';
+    padding-right: 3px;
+}
+
+.available-action-skip-option-type--lead::before {
+    content: "\f25b";
+}
+.available-action-skip-option-type--company::before {
+    content: "\eb09";
+}
+.available-action-skip-option-type--form::before {
+    content: "\f1c7";
 }

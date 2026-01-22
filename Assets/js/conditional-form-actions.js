@@ -134,6 +134,8 @@
 
         if (fieldObject === 'company') {
             $prototype.find(".object-icon").removeClass('ri-user-6-fill').addClass('ri-building-2-line');
+        } else if (fieldObject === 'form') {
+            $prototype.find(".object-icon").removeClass('ri-user-6-fill').addClass('ri-survey-line');
         } else {
             $prototype.find(".object-icon").removeClass('ri-building-2-line').addClass('ri-user-6-fill');
         }
@@ -281,6 +283,7 @@
             },
             success: function (response) {
                 Mautic.stopPageLoadingBar();
+
                 resultHtml(response.viewParameters.form);
             },
             error: function (request, textStatus, errorThrown) {
@@ -420,9 +423,9 @@
         let bodyOverflow = {};
 
         $container.sortable({
-            items: '.cfa-action-panel',
-            handle: '.cfa-action-header',
-            cancel: '.action-condition-builder-wrapper, .add-conditions-button-wrapper',
+            items: '.cfa-action-wrapper',
+            handle: '.mauticform-row',
+            cancel: '.cfa-action-condition-builder-wrapper, .cfa-add-conditions-button-wrapper',
             distance: 10,
             helper: function(e, ui) {
                 ui.children().each(function() {
@@ -466,7 +469,7 @@
                     mQuery.ajax({
                         type: "POST",
                         url: mauticAjaxUrl + "?action=form:reorderActions",
-                        data: mQuery('#mauticforms_actions').sortable("serialize") + "&formId=" + mQuery('#mauticform_sessionId').val()
+                        data: mQuery('#mauticforms_actions').sortable("serialize", {attribute: 'data-sortable-id'}) + "&formId=" + mQuery('#mauticform_sessionId').val()
                     });
                 }
             }
