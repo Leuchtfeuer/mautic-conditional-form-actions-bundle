@@ -23,13 +23,14 @@ class ConditionBuilderController extends AbstractController
         AvailableOptionsProvider $availableOptionsProvider,
         FormModel $formModel,
     ): JsonResponse {
-        $fieldAlias     = InputHelper::clean($request->get('fieldAlias'));
-        $fieldObject    = InputHelper::clean($request->get('fieldObject'));
-        $operator       = InputHelper::clean($request->get('operator'));
-        $search         = InputHelper::clean($request->get('search'));
-        $formId         = InputHelper::clean($request->get('formId'));
-        $actionId       = InputHelper::clean($request->get('actionId'));
-        $conditionNum   = (int) $request->get('conditionNum');
+        $request->
+        $fieldAlias     = InputHelper::clean($request->request->get('fieldAlias'));
+        $fieldObject    = InputHelper::clean($request->request->get('fieldObject'));
+        $operator       = InputHelper::clean($request->request->get('operator'));
+        $search         = InputHelper::clean($request->request->get('search'));
+        $formId         = InputHelper::clean($request->request->get('formId'));
+        $actionId       = InputHelper::clean($request->request->get('actionId'));
+        $conditionNum   = (int) $request->request->get('conditionNum');
 
         $formEntity = $formModel->getEntity($formId);
         $form       = $formFactory->createNamed(self::TMP_NAME, FilterPropertiesType::class);
