@@ -23,7 +23,6 @@ class ConditionBuilderController extends AbstractController
         AvailableOptionsProvider $availableOptionsProvider,
         FormModel $formModel,
     ): JsonResponse {
-        $request->
         $fieldAlias     = InputHelper::clean($request->request->get('fieldAlias'));
         $fieldObject    = InputHelper::clean($request->request->get('fieldObject'));
         $operator       = InputHelper::clean($request->request->get('operator'));
