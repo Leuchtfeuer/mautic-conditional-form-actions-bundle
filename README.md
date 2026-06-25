@@ -1,4 +1,4 @@
-# Plugin: Conditional Form Actions Integration by Leuchtfeuer
+# ConditionalFormActions by Leuchtfeuer
 
 Conditional form submit actions for Mautic. Execute different follow-up actions based on form or contact field values.
 
@@ -10,10 +10,11 @@ Conditional form submit actions for Mautic. Execute different follow-up actions 
 - Supports AND and OR logic
 - Non-conditional actions behave unchanged
 
-## Requirements
-
-- Mautic 6.0
-- PHP >= 8.1
+## Requirements for this release
+> [!TIP]
+> Other releases of this plugin may cover different Mautic versions!
+- Mautic 7.x (min. 7.0)
+- PHP 8.2+
 
 ## Installation
 
@@ -63,4 +64,4 @@ Please raise any issues in GitHub.
 For all other things, please email mautic-plugins@Leuchtfeuer.com
 
 ## License
-“This plugin is licensed under the MIT License. See the `LICENSE` file for more details.”
+This plugin is licensed under the GPL v3 License.
