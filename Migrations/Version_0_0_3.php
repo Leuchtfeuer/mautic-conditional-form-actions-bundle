@@ -12,6 +12,7 @@ use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Helper\MigrationHelper;
 class Version_0_0_3 extends AbstractMigration
 {
     private string $table = 'form_action_execution_logs';
+
     private Schema $schema;
 
     protected function isApplicable(Schema $schema): bool

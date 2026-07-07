@@ -35,14 +35,13 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
     }
 
     /**
-     * @dataProvider conditionsDataProvider
-     *
      * @param array<mixed>|null    $conditions    The conditions definition for the DB
      * @param array<string, mixed> $leadData      Profile data to pre-fill on the contact
      * @param array<string, mixed> $companyData   Company data (if any)
      * @param array<string, mixed> $formData      The submitted form values
      * @param bool                 $shouldExecute Whether we expect the action (Add to Segment) to run
      */
+    #[\PHPUnit\Framework\Attributes\DataProvider('conditionsDataProvider')]
     public function testConditionalActionExecution(
         ?array $conditions,
         array $leadData,
@@ -122,7 +121,7 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
 
         $formElement->setValues($mauticFormValues);
         $this->client->submit($formElement);
-        Assert::assertTrue($this->client->getResponse()->isOk());
+        self::assertResponseIsSuccessful();
 
         // 7. Assertion
         $this->em->clear(); // Clear Doctrine identity map

@@ -11,6 +11,7 @@ class LeuchtfeuerConditionalFormActionsIntegration extends BasicIntegration impl
     use ConfigurationTrait;
 
     public const INTEGRATION_NAME = 'LeuchtfeuerConditionalFormActions';
+
     public const DISPLAY_NAME     = 'ConditionalFormActions by Leuchtfeuer';
 
     public function getName(): string

@@ -54,7 +54,7 @@ class ConditionType extends AbstractType
             $form        = $event->getForm();
             $fieldAlias  = $data['field'] ?? null;
             $fieldObject = $data['object'] ?? 'lead';
-            $field       = $fieldChoices[$fieldObject][$fieldAlias] ?? null;
+            $field       = null !== $fieldAlias ? ($fieldChoices[$fieldObject][$fieldAlias] ?? null) : null;
             $operators   = $field['operators'] ?? [];
             $operator    = $data['operator'] ?? null;
 

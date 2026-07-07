@@ -13,6 +13,7 @@ use Symfony\Contracts\Service\Attribute\Required;
 class SubmissionModelDecorated extends SubmissionModel
 {
     private ConditionsEvaluator $conditionsEvaluator;
+
     private FormActionExecutionLogRepository $logRepository;
 
     #[Required]
