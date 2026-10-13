@@ -15,6 +15,9 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
+/**
+ * @extends AbstractType<array<string, mixed>>
+ */
 class ActionConditionEntryType extends AbstractType
 {
     public function __construct(

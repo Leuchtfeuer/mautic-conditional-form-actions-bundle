@@ -96,10 +96,10 @@ class FormTypeExtension extends AbstractTypeExtension
             return;
         }
 
-        if (isset($view['actionConditionsConfig'])) {
+        if ($view->offsetExists('actionConditionsConfig')) {
             $this->twig->getRuntime(FormRenderer::class)
                 ->setTheme(
-                    $view['actionConditionsConfig'],
+                    $view->offsetGet('actionConditionsConfig'),
                     '@LeuchtfeuerConditionalFormActions/FormTheme/conditional_action_conditions.html.twig'
                 );
         }
