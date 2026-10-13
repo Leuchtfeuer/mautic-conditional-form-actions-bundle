@@ -14,10 +14,10 @@ use Symfony\Component\HttpFoundation\RequestStack;
 class FormBuilderSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private ActionConditionManager $actionConditionManager,
-        private RequestStack $requestStack,
-        private Config $pluginConfig,
-        private EntityManagerInterface $em,
+        private readonly ActionConditionManager $actionConditionManager,
+        private readonly RequestStack $requestStack,
+        private readonly Config $pluginConfig,
+        private readonly EntityManagerInterface $em,
     ) {
     }
 

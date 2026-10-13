@@ -15,12 +15,11 @@ use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Entity\FormActionCondit
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Entity\FormActionExecutionLog;
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Entity\FormActionExecutionLogRepository;
 use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Tests\Fixtures\FunctionalFixtureHelper;
-use PHPUnit\Framework\Assert;
 use Symfony\Component\DomCrawler\Field\ChoiceFormField;
 use Symfony\Component\DomCrawler\Form;
 use Symfony\Component\HttpFoundation\Request;
 
-class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
+final class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
 {
     protected $useCleanupRollback = false;
 
@@ -55,15 +54,13 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
         // 2. Preparation: Create Contact & Company context
         $contact = new Lead();
         $contact->setEmail($formData['email']);
-        if (!empty($leadData)) {
-            foreach ($leadData as $field => $value) {
-                $this->setEntityValue($contact, $field, $value);
-            }
+        foreach ($leadData as $field => $value) {
+            $this->setEntityValue($contact, $field, $value);
         }
         $this->em->persist($contact);
         $this->em->flush();
 
-        if (!empty($companyData)) {
+        if ([] !== $companyData) {
             $company = $this->fixtureHelper->createCompany($companyData['companyname'] ?? 'Test Corp');
             $this->em->persist($company);
             $this->fixtureHelper->addContactToCompany($contact, $company);
@@ -133,9 +130,9 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
         $isInSegment = isset($leadLists[$segment->getId()]);
 
         if ($shouldExecute) {
-            Assert::assertTrue($isInSegment, 'The Action should have executed, but the contact is NOT in the segment.');
+            $this->assertTrue($isInSegment, 'The Action should have executed, but the contact is NOT in the segment.');
         } else {
-            Assert::assertFalse($isInSegment, 'The Action should have been SKIPPED, but the contact IS in the segment.');
+            $this->assertFalse($isInSegment, 'The Action should have been SKIPPED, but the contact IS in the segment.');
         }
 
         // 8. Check Logs
@@ -152,7 +149,7 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
 
         // Find the most recent submission for this form
         $submission = $submissionRepo->findOneBy(['form' => $formId], ['dateSubmitted' => 'DESC']);
-        Assert::assertNotNull($submission, 'No submission found for log verification.');
+        $this->assertInstanceOf(Submission::class, $submission, 'No submission found for log verification.');
 
         /** @var FormActionExecutionLogRepository $logRepo */
         $logRepo = $this->em->getRepository(FormActionExecutionLog::class);
@@ -163,22 +160,18 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
             'action'     => $actionId,
         ]);
 
-        Assert::assertNotNull($log, 'No execution log found for this action/submission combination.');
+        $this->assertInstanceOf(FormActionExecutionLog::class, $log, 'No execution log found for this action/submission combination.');
 
-        Assert::assertEquals(
-            $expectedExecutionStatus,
-            $log->isExecuted(),
-            sprintf('Log status mismatch. Expected isExecuted: %s, but got: %s',
-                $expectedExecutionStatus ? 'true' : 'false',
-                $log->isExecuted() ? 'true' : 'false'
-            )
-        );
+        $this->assertSame($expectedExecutionStatus, $log->isExecuted(), sprintf('Log status mismatch. Expected isExecuted: %s, but got: %s',
+            $expectedExecutionStatus ? 'true' : 'false',
+            $log->isExecuted() ? 'true' : 'false'
+        ));
 
         $expectedDetails = $expectedExecutionStatus
             ? FormActionExecutionLog::DETAILS_CONDITIONS_MET
             : FormActionExecutionLog::DETAILS_CONDITIONS_NOT_MET;
 
-        Assert::assertEquals($expectedDetails, $log->getLogDetails(), 'Log detail message is incorrect.');
+        $this->assertEquals($expectedDetails, $log->getLogDetails(), 'Log detail message is incorrect.');
     }
 
     private function setEntityValue(object $entity, string $field, mixed $value): void
@@ -187,7 +180,7 @@ class ActionsEvaluationFunctionalTest extends MauticMysqlTestCase
         if (method_exists($entity, $method)) {
             $entity->$method($value);
         } else {
-            throw new \BadMethodCallException("Method '{$method}' does not exist on entity ".get_class($entity));
+            throw new \BadMethodCallException("Method '{$method}' does not exist on entity ".$entity::class);
         }
     }
 

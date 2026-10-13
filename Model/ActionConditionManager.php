@@ -11,8 +11,8 @@ use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Entity\FormActionCondit
 class ActionConditionManager
 {
     public function __construct(
-        private EntityManagerInterface $entityManager,
-        private FormActionConditionRepository $repository,
+        private readonly EntityManagerInterface $entityManager,
+        private readonly FormActionConditionRepository $repository,
     ) {
     }
 

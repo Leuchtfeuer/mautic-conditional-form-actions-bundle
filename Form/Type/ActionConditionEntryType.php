@@ -18,9 +18,9 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class ActionConditionEntryType extends AbstractType
 {
     public function __construct(
-        private TranslatorInterface $translator,
-        private RelativeDate $relativeDate,
-        private AvailableOptionsProvider $availableOptionsProvider,
+        private readonly TranslatorInterface $translator,
+        private readonly RelativeDate $relativeDate,
+        private readonly AvailableOptionsProvider $availableOptionsProvider,
     ) {
     }
 

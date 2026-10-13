@@ -15,7 +15,7 @@ use Mautic\PluginBundle\Entity\Plugin;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\HttpFoundation\Request;
 
-final class FunctionalFixtureHelper
+final readonly class FunctionalFixtureHelper
 {
     public function __construct(
         private EntityManagerInterface $em,

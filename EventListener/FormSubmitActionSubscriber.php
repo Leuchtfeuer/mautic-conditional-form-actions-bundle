@@ -16,12 +16,12 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  * Replaces SubmissionModel decoration: core SubmissionModel is final in Mautic 7,
  * so conditional execution is gated on FormEvents::ON_EXECUTE_SUBMIT_ACTION instead.
  */
-final class FormSubmitActionSubscriber implements EventSubscriberInterface
+final readonly class FormSubmitActionSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private readonly Config $pluginConfig,
-        private readonly ConditionsEvaluator $conditionsEvaluator,
-        private readonly FormActionExecutionLogRepository $logRepository,
+        private Config $pluginConfig,
+        private ConditionsEvaluator $conditionsEvaluator,
+        private FormActionExecutionLogRepository $logRepository,
     ) {
     }
 
