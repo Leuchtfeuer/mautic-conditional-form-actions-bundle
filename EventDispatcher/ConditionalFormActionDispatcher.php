@@ -41,15 +41,10 @@ final readonly class ConditionalFormActionDispatcher implements EventDispatcherI
             return $this->inner->dispatch($event, $eventName);
         }
 
-        $lead = $event->getSubmission()->getLead();
-        if (null === $lead) {
-            return $this->inner->dispatch($event, $eventName);
-        }
-
         $shouldExecute = $this->conditionsEvaluator->shouldExecute(
             $action,
             $event->getSubmission(),
-            $lead
+            $event->getSubmission()->getLead()
         );
 
         if (!$shouldExecute) {

@@ -174,17 +174,53 @@ final class ConditionalFormActionDispatcherTest extends TestCase
         $this->dispatcher->dispatch($event, 'mautic.form.on_execute_submit_action');
     }
 
-    public function testForwardsWhenSubmissionHasNoLead(): void
+    public function testEvaluatesConditionsWhenSubmissionHasNoLead(): void
     {
-        $event = $this->createSubmissionEvent(withAction: true, withLead: false);
+        $event  = $this->createSubmissionEvent(withAction: true, withLead: false);
+        $action = $event->getAction();
+        $this->assertInstanceOf(Action::class, $action);
 
         $this->pluginConfig->method('isPublished')->willReturn(true);
-        $this->conditionsEvaluator->expects($this->never())->method('shouldExecute');
+        $this->conditionsEvaluator->expects($this->once())
+            ->method('shouldExecute')
+            ->with($action, $event->getSubmission(), null)
+            ->willReturn(false);
+        $this->inner->expects($this->never())->method('dispatch');
+        $this->logRepository->expects($this->once())
+            ->method('logExecution')
+            ->with(
+                $event->getSubmission(),
+                $action,
+                false,
+                FormActionExecutionLog::DETAILS_CONDITIONS_NOT_MET
+            );
+
+        $this->assertSame($event, $this->dispatcher->dispatch($event, 'mautic.form.on_execute_submit_action'));
+    }
+
+    public function testForwardsWhenSubmissionHasNoLeadAndConditionsMet(): void
+    {
+        $event  = $this->createSubmissionEvent(withAction: true, withLead: false);
+        $action = $event->getAction();
+        $this->assertInstanceOf(Action::class, $action);
+
+        $this->pluginConfig->method('isPublished')->willReturn(true);
+        $this->conditionsEvaluator->expects($this->once())
+            ->method('shouldExecute')
+            ->with($action, $event->getSubmission(), null)
+            ->willReturn(true);
         $this->inner->expects($this->once())
             ->method('dispatch')
             ->with($event, 'mautic.form.on_execute_submit_action')
             ->willReturn($event);
-        $this->logRepository->expects($this->never())->method('logExecution');
+        $this->logRepository->expects($this->once())
+            ->method('logExecution')
+            ->with(
+                $event->getSubmission(),
+                $action,
+                true,
+                FormActionExecutionLog::DETAILS_CONDITIONS_MET
+            );
 
         $this->assertSame($event, $this->dispatcher->dispatch($event, 'mautic.form.on_execute_submit_action'));
     }

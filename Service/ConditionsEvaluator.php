@@ -20,7 +20,7 @@ class ConditionsEvaluator
     ) {
     }
 
-    public function shouldExecute(Action $action, Submission $submission, Lead $contact): bool
+    public function shouldExecute(Action $action, Submission $submission, ?Lead $contact): bool
     {
         $conditionEntity = $this->formActionConditionRepository->findByActionId($action->getId());
 
@@ -29,24 +29,27 @@ class ConditionsEvaluator
             return true;
         }
 
-        $conditions     = $conditionEntity->getConditions();
-        $leadArray      = $contact->getProfileFields();
-
-        try {
-            $companyArray = $this->companyLeadRepository->getPrimaryCompanyByLeadId($contact->getId());
-        } catch (PrimaryCompanyNotFoundException) {
-            $companyArray = null;
-        }
-
-        $formArray = $submission->getResults();
+        $conditions = $conditionEntity->getConditions();
         if (empty($conditions)) {
             return true;
+        }
+
+        // Form-field conditions must still be evaluated when no lead exists
+        // (e.g. blocked tracking / admin submit without mapped contact fields).
+        $leadArray    = null !== $contact ? $contact->getProfileFields() : [];
+        $companyArray = null;
+        if (null !== $contact && $contact->getId() > 0) {
+            try {
+                $companyArray = $this->companyLeadRepository->getPrimaryCompanyByLeadId($contact->getId());
+            } catch (PrimaryCompanyNotFoundException) {
+                $companyArray = null;
+            }
         }
 
         $dataSources = [
             'lead'    => $leadArray,
             'company' => $companyArray,
-            'form'    => $formArray,
+            'form'    => $submission->getResults(),
         ];
 
         $finalResult = false;
