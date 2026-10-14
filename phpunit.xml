@@ -2,10 +2,11 @@
 <!--
   Single PHPUnit config for local (from plugin dir or Mautic root) and CI.
   Requires this bundle under plugins/ in a Mautic checkout.
-  Coverage filter must use <source> (PHPUnit 10+); <coverage><include> is ignored.
+  Coverage filter must use <source> (PHPUnit 10+/11); <coverage><include> is ignored.
+  Align require-dev phpunit with Mautic core (^11.5).
 -->
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/11.5/phpunit.xsd"
          bootstrap="Tests/bootstrap.php"
          colors="true"
          cacheDirectory=".phpunit.cache"
