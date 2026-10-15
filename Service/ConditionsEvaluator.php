@@ -15,12 +15,12 @@ use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Entity\FormActionCondit
 class ConditionsEvaluator
 {
     public function __construct(
-        private FormActionConditionRepository $formActionConditionRepository,
-        private CompanyLeadRepository $companyLeadRepository,
+        private readonly FormActionConditionRepository $formActionConditionRepository,
+        private readonly CompanyLeadRepository $companyLeadRepository,
     ) {
     }
 
-    public function shouldExecute(Action $action, Submission $submission, Lead $contact): bool
+    public function shouldExecute(Action $action, Submission $submission, ?Lead $contact): bool
     {
         $conditionEntity = $this->formActionConditionRepository->findByActionId($action->getId());
 
@@ -29,24 +29,27 @@ class ConditionsEvaluator
             return true;
         }
 
-        $conditions     = $conditionEntity->getConditions();
-        $leadArray      = $contact->getProfileFields();
-
-        try {
-            $companyArray = $this->companyLeadRepository->getPrimaryCompanyByLeadId($contact->getId());
-        } catch (PrimaryCompanyNotFoundException) {
-            $companyArray = null;
-        }
-
-        $formArray = $submission->getResults();
+        $conditions = $conditionEntity->getConditions();
         if (empty($conditions)) {
             return true;
+        }
+
+        // Form-field conditions must still be evaluated when no lead exists
+        // (e.g. blocked tracking / admin submit without mapped contact fields).
+        $leadArray    = null !== $contact ? $contact->getProfileFields() : [];
+        $companyArray = null;
+        if (null !== $contact && $contact->getId() > 0) {
+            try {
+                $companyArray = $this->companyLeadRepository->getPrimaryCompanyByLeadId($contact->getId());
+            } catch (PrimaryCompanyNotFoundException) {
+                $companyArray = null;
+            }
         }
 
         $dataSources = [
             'lead'    => $leadArray,
             'company' => $companyArray,
-            'form'    => $formArray,
+            'form'    => $submission->getResults(),
         ];
 
         $finalResult = false;
@@ -141,8 +144,8 @@ class ConditionsEvaluator
                 $actualValues = is_array($actualValue) ? $actualValue : explode(',', (string) $actualValue);
 
                 // Normalize both arrays for case-insensitive comparison
-                $actualValuesLower = array_map('mb_strtolower', array_map('trim', $actualValues));
-                $filterValuesLower = array_map('mb_strtolower', array_map('trim', $filterValue));
+                $actualValuesLower = array_map(mb_strtolower(...), array_map(trim(...), $actualValues));
+                $filterValuesLower = array_map(mb_strtolower(...), array_map(trim(...), $filterValue));
 
                 // Return true if any of the actual values are in the filter list
                 return !empty(array_intersect($actualValuesLower, $filterValuesLower));
@@ -155,8 +158,8 @@ class ConditionsEvaluator
                 // Handle single values and comma-separated string values
                 $actualValues = is_array($actualValue) ? $actualValue : explode(',', (string) $actualValue);
 
-                $actualValuesLower = array_map('mb_strtolower', array_map('trim', $actualValues));
-                $filterValuesLower = array_map('mb_strtolower', array_map('trim', $filterValue));
+                $actualValuesLower = array_map(mb_strtolower(...), array_map(trim(...), $actualValues));
+                $filterValuesLower = array_map(mb_strtolower(...), array_map(trim(...), $filterValue));
 
                 // Return true if NONE of the actual values are in the filter list
                 return empty(array_intersect($actualValuesLower, $filterValuesLower));

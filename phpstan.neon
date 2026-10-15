@@ -1,0 +1,31 @@
+# Paths are relative to this file, which is used from two locations, so path-based entries exist twice:
+# - Locally from the plugin directory: `composer phpstan` (see composer.json).
+# - CI (mautic-ci-runner) copies this file to the Mautic root and runs
+#   `composer phpstan -- plugins/LeuchtfeuerConditionalFormActionsBundle`, so paths are relative to the Mautic root there.
+
+parameters:
+    level: 6
+    tmpDir: .phpstan-cache
+    reportUnmatchedIgnoredErrors: false
+    treatPhpDocTypesAsCertain: false
+
+    parallel:
+        maximumNumberOfProcesses: 4
+        processTimeout: 1000.0
+
+    bootstrapFiles:
+        - phpstan-bootstrap.php
+
+    paths:
+        - .
+
+    excludePaths:
+        - vendor/* (?)
+        - var/* (?)
+        - Tests/*
+        - plugins/LeuchtfeuerConditionalFormActionsBundle/Tests/*
+
+    dynamicConstantNames:
+        - MAUTIC_ENV
+        - MAUTIC_TABLE_PREFIX
+        - MAUTIC_VERSION

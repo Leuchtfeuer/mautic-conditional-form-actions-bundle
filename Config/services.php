@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 use Doctrine\Bundle\DoctrineBundle\DependencyInjection\Compiler\ServiceRepositoryCompilerPass;
 use Mautic\CoreBundle\DependencyInjection\MauticCoreExtension;
-use Mautic\FormBundle\Model\SubmissionModel;
-use MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Model\SubmissionModelDecorated;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return function (ContainerConfigurator $configurator): void {
@@ -23,6 +21,8 @@ return function (ContainerConfigurator $configurator): void {
     $services->load('MauticPlugin\\LeuchtfeuerConditionalFormActionsBundle\\', '../')
         ->exclude('../{'.implode(',', array_merge(MauticCoreExtension::DEFAULT_EXCLUDES, $excludes)).'}');
 
+    // $inner is wired via #[Autowire(service: 'event_dispatcher', lazy: true)] on the dispatcher.
+
     $services->get(MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Integration\LeuchtfeuerConditionalFormActionsIntegration::class)
         ->tag('mautic.integration')
         ->tag('mautic.basic_integration');
@@ -30,7 +30,4 @@ return function (ContainerConfigurator $configurator): void {
         ->tag('mautic.config_integration');
 
     $services->alias('mautic.integration.leuchtfeuerconditionalformactions', MauticPlugin\LeuchtfeuerConditionalFormActionsBundle\Integration\LeuchtfeuerConditionalFormActionsIntegration::class);
-
-    $services->set(SubmissionModelDecorated::class)
-        ->decorate(SubmissionModel::class);
 };

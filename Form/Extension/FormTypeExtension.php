@@ -20,10 +20,10 @@ use Twig\Environment;
 class FormTypeExtension extends AbstractTypeExtension
 {
     public function __construct(
-        private Config $pluginConfig,
-        private ActionConditionManager $actionConditionManager,
-        private Environment $twig,
-        private RequestStack $requestStack,
+        private readonly Config $pluginConfig,
+        private readonly ActionConditionManager $actionConditionManager,
+        private readonly Environment $twig,
+        private readonly RequestStack $requestStack,
     ) {
     }
 
@@ -33,7 +33,7 @@ class FormTypeExtension extends AbstractTypeExtension
             return;
         }
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, [$this, 'onPreSetData']);
+        $builder->addEventListener(FormEvents::PRE_SET_DATA, $this->onPreSetData(...));
     }
 
     public function onPreSetData(FormEvent $event): void
@@ -96,10 +96,10 @@ class FormTypeExtension extends AbstractTypeExtension
             return;
         }
 
-        if (isset($view['actionConditionsConfig'])) {
+        if ($view->offsetExists('actionConditionsConfig')) {
             $this->twig->getRuntime(FormRenderer::class)
                 ->setTheme(
-                    $view['actionConditionsConfig'],
+                    $view->offsetGet('actionConditionsConfig'),
                     '@LeuchtfeuerConditionalFormActions/FormTheme/conditional_action_conditions.html.twig'
                 );
         }

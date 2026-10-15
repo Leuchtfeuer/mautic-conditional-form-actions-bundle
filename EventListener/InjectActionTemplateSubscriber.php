@@ -14,7 +14,7 @@ class InjectActionTemplateSubscriber implements EventSubscriberInterface
     private const ACTION_TEMPLATE = '@LeuchtfeuerConditionalFormActions/Action/_generic.html.twig';
 
     public function __construct(
-        private Config $pluginConfig,
+        private readonly Config $pluginConfig,
     ) {
     }
 

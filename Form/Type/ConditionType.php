@@ -16,11 +16,14 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * @extends AbstractType<array<string, mixed>>
+ */
 class ConditionType extends AbstractType
 {
     public function __construct(
-        private FormAdjustmentsProviderInterface $formAdjustmentsProvider,
-        private AvailableOptionsProvider $availableOptionsProvider,
+        private readonly FormAdjustmentsProviderInterface $formAdjustmentsProvider,
+        private readonly AvailableOptionsProvider $availableOptionsProvider,
     ) {
     }
 
